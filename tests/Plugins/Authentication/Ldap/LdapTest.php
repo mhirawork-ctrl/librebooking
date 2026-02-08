@@ -184,8 +184,7 @@ class LdapTest extends TestBase
 
     public function testConstructsOptionsCorrectly()
     {
-        $hosts = 'localhost, localhost.2';
-        $port = '389';
+        $uris = 'ldap://localhost:389 ldap://localhost.2:389';
         $binddn = 'cn=admin,ou=users,dc=example,dc=org';
         $password = 'pw';
         $base = 'dc=example,dc=org';
@@ -193,8 +192,7 @@ class LdapTest extends TestBase
         $version = '3';
 
         $configFile = new FakeConfigFile();
-        $configFile->SetKey(LdapConfigKeys::HOST, $hosts);
-        $configFile->SetKey(LdapConfigKeys::PORT, $port);
+        $configFile->SetKey(LdapConfigKeys::URI, $uris);
         $configFile->SetKey(LdapConfigKeys::BINDDN, $binddn);
         $configFile->SetKey(LdapConfigKeys::BINDPW, $password);
         $configFile->SetKey(LdapConfigKeys::BASEDN, $base);
@@ -207,8 +205,7 @@ class LdapTest extends TestBase
         $options = $ldapOptions->Ldap2Config();
 
         $this->assertNotNull($this->fakeConfig->_RegisteredFiles[LdapConfigKeys::CONFIG_ID]);
-        $this->assertEquals('localhost', $options['host'][0], 'domain_controllers must be an array');
-        $this->assertEquals(intval($port), $options['port'], 'port should be int');
+        $this->assertEquals('ldap://localhost:389', $options['host'][0], 'controllers must be an array of URIs');
         $this->assertEquals($binddn, $options['binddn']);
         $this->assertEquals($password, $options['bindpw']);
         $this->assertEquals($base, $options['basedn']);
@@ -218,15 +215,49 @@ class LdapTest extends TestBase
 
     public function testGetAllHosts()
     {
-        $controllers = 'localhost, localhost.2';
+        $controllers = 'ldap://localhost:389 ldap://localhost.2:389';
 
         $configFile = new FakeConfigFile();
-        $configFile->SetKey(LdapConfigKeys::HOST, $controllers);
+        $configFile->SetKey(LdapConfigKeys::URI, $controllers);
         $this->fakeConfig->SetFile(LdapConfigKeys::CONFIG_ID, $configFile);
 
         $options = new LdapOptions();
 
-        $this->assertEquals(['localhost', 'localhost.2'], $options->Controllers(), "comma separated values should become array");
+        $this->assertEquals(['ldap://localhost:389', 'ldap://localhost.2:389'], $options->Controllers(), "space separated uris should become array");
+    }
+
+    public function testThrowsIfLegacyHostIsConfigured()
+    {
+        $configFile = new FakeConfigFile();
+        $configFile->SetKey([
+            'key' => 'host',
+            'section' => 'ldap',
+            'type' => 'string',
+        ], 'ldap://localhost');
+        $this->fakeConfig->SetFile(LdapConfigKeys::CONFIG_ID, $configFile);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("LDAP settings 'host' and 'port' have been removed");
+
+        $options = new LdapOptions();
+        $options->Ldap2Config();
+    }
+
+    public function testThrowsIfLegacyPortIsConfigured()
+    {
+        $configFile = new FakeConfigFile();
+        $configFile->SetKey([
+            'key' => 'port',
+            'section' => 'ldap',
+            'type' => 'string',
+        ], '389');
+        $this->fakeConfig->SetFile(LdapConfigKeys::CONFIG_ID, $configFile);
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage("LDAP settings 'host' and 'port' have been removed");
+
+        $options = new LdapOptions();
+        $options->Ldap2Config();
     }
 
     public function testUserHandlesArraysAsAttribute()
