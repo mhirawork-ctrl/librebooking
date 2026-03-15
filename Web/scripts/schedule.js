@@ -194,6 +194,11 @@ function Schedule(opts, resourceGroups) {
             if (opts.scheduleStyle === ScheduleTall) {
                 width = startTd.outerWidth() - cellAdjustment;
                 height = endTd.position().top - startTd.position().top;
+                if (calculatedAdjustment > 0 && height > 0) {
+                    // findClosestEnd was used: endTd is the last slot STARTING before resEnd,
+                    // but height must extend through to the bottom of that slot row
+                    height += endTd.outerHeight();
+                }
                 top = startTd.position().top;
                 left += cellAdjustment;
             }
