@@ -355,7 +355,8 @@ function ReservationManagement(opts, approval) {
 
   function selectUser(ui, textbox) {
     elements.userId.val(ui.item.value);
-    textbox.val(ui.item.label);
+    var selectedUserName = ui.item.data && ui.item.data.UserName ? ui.item.data.UserName : ui.item.label;
+    textbox.val(selectedUserName);
   }
 
   function filterReservations() {

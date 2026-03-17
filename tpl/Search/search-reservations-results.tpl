@@ -26,7 +26,11 @@
 						<tr class="{$rowCss} editable" data-seriesId="{$reservation->SeriesId}"
 							data-refnum="{$reservation->ReferenceNumber}">
 							<td class="user">
-								{fullname first=$reservation->FirstName last=$reservation->LastName ignorePrivacy=($reservation->OwnerId==$UserId)}
+								{if !empty($reservation->UserName)}
+									{$reservation->UserName|escape:'html'}
+								{else}
+									{fullname first=$reservation->FirstName last=$reservation->LastName ignorePrivacy=($reservation->OwnerId==$UserId)}
+								{/if}
 							</td>
 							<td class="resource">{$reservation->ResourceName}</td>
 							<td class="title">{$reservation->Title}</td>

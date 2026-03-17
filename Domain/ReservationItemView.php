@@ -187,6 +187,11 @@ class ReservationItemView implements IReservedItemView
     public $LastName;
 
     /**
+     * @var null|string
+     */
+    public $UserName;
+
+    /**
      * @var null|int
      */
     public $UserId;
@@ -598,6 +603,12 @@ class ReservationItemView implements IReservedItemView
 
         if (isset($row[ColumnNames::EMAIL])) {
             $view->OwnerEmailAddress = $row[ColumnNames::EMAIL];
+        }
+
+        if (isset($row[ColumnNames::OWNER_USERNAME])) {
+            $view->UserName = $row[ColumnNames::OWNER_USERNAME];
+        } elseif (isset($row[ColumnNames::USERNAME])) {
+            $view->UserName = $row[ColumnNames::USERNAME];
         }
 
         if (isset($row[ColumnNames::SERIES_ID])) {

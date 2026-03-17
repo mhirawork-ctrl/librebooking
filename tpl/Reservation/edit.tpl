@@ -99,6 +99,36 @@
                 <span class="bi bi-check-circle"></span>
                 {translate key='Update'}
             </button>
+        {else}
+            <button type="button" class="btn btn-sm btn-primary save update btnEdit">
+                <span class="bi bi-check-circle"></span>
+                {translate key='Update'}
+            </button>
+        {/if}
+    {/block}
+
+    {block name="ajaxMessage"}
+        {translate key=UpdatingReservation}...
+    {/block}
+
+    {block name='attachments'}
+        {if $Attachments|default:array()|count > 0}
+            <div id="attachmentDiv" class="res-attachments border-top mt-2 pt-2">
+                <span class="heading fw-bold">{translate key=Attachments} ({$Attachments|default:array()|count})</span>
+                <a href="#" class="remove text-danger" id="btnRemoveAttachment">({translate key="Remove"})</a>
+                <br />
+                {foreach from=$Attachments item=attachment}
+                    {assign var=attachmentUrl value="attachments/{Pages::RESERVATION_FILE}?{QueryStringKeys::ATTACHMENT_FILE_ID}={$attachment->FileId()}&{QueryStringKeys::REFERENCE_NUMBER}={$ReferenceNumber}"}
+                    <a href="{$attachmentUrl}" download="{$attachmentUrl}" target="_blank"
+                        class="link-primary">{$attachment->FileName()}</a>
+                    <input style='display: none;' type="checkbox" name="{FormKeys::REMOVED_FILE_IDS}[{$attachment->FileId()}]" />
+                {/foreach}
+            </div>
+        {/if}
+    {/block}
+
+    {block name=extras}
+        {if $IsRecurring}
             <div class="modal fade" id="updateButtons" tabindex="-1" role="dialog" aria-labelledby="updateButtonsLabel"
                 aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -133,13 +163,6 @@
                     </div>
                 </div>
             </div>
-
-        {else}
-
-            <button type="button" class="btn btn-sm btn-primary save update btnEdit">
-                <span class="bi bi-check-circle"></span>
-                {translate key='Update'}
-            </button>
         {/if}
 
         <div id="deleteButtonPrompt" class="modal fade">
@@ -159,29 +182,7 @@
                 </div>
             </div>
         </div>
-    {/block}
 
-    {block name="ajaxMessage"}
-        {translate key=UpdatingReservation}...
-    {/block}
-
-    {block name='attachments'}
-        {if $Attachments|default:array()|count > 0}
-            <div id="attachmentDiv" class="res-attachments border-top mt-2 pt-2">
-                <span class="heading fw-bold">{translate key=Attachments} ({$Attachments|default:array()|count})</span>
-                <a href="#" class="remove text-danger" id="btnRemoveAttachment">({translate key="Remove"})</a>
-                <br />
-                {foreach from=$Attachments item=attachment}
-                    {assign var=attachmentUrl value="attachments/{Pages::RESERVATION_FILE}?{QueryStringKeys::ATTACHMENT_FILE_ID}={$attachment->FileId()}&{QueryStringKeys::REFERENCE_NUMBER}={$ReferenceNumber}"}
-                    <a href="{$attachmentUrl}" download="{$attachmentUrl}" target="_blank"
-                        class="link-primary">{$attachment->FileName()}</a>
-                    <input style='display: none;' type="checkbox" name="{FormKeys::REMOVED_FILE_IDS}[{$attachment->FileId()}]" />
-                {/foreach}
-            </div>
-        {/if}
-    {/block}
-
-    {block name=extras}
         {if $AutoReleaseMinutes != null}
             <input type="hidden" id="autoReleaseMinutes" value="{$AutoReleaseMinutes}" />
         {/if}
