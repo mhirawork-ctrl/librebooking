@@ -194,7 +194,7 @@ class ja_jp extends en_gb
         $strings['AllUsers'] = '全ユーザー';
         $strings['AllGroups'] = '全グループ';
         $strings['AllSchedules'] = '全スケジュール';
-        $strings['UsernameOrEmail'] = 'ユーザー名またはメールアドレス';
+        $strings['UsernameOrEmail'] = 'ユーザー名';
         $strings['Members'] = 'メンバー';
         $strings['QuickSlotCreation'] = '予約枠を %s 分毎に %s から %s まで生成する';
         $strings['ApplyUpdatesTo'] = '更新を適用するのは';
@@ -415,6 +415,8 @@ class ja_jp extends en_gb
         $strings['Count'] = '回数';
         $strings['Usage'] = '使用量';
         $strings['AggregateBy'] = '集計項目';
+        $strings['Purpose'] = '用途';
+        $strings['UserAndPurpose'] = 'ユーザー名 × 用途';
         $strings['Range'] = '期間';
         $strings['Choose'] = '選択';
         $strings['All'] = '全て';

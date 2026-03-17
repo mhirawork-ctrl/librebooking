@@ -63,12 +63,9 @@
                 <table class="table table-striped table-hover w-100 admin-panel" id="{$tableId}">
                     <thead>
                         <tr>
-                            <th>{translate key='Name'}</th>
                             <th>{translate key='Username'}</th>
                             <th>{translate key='Email'}</th>
                             <th>{translate key='Phone'}</th>
-                            <th>{translate key='Organization'}</th>
-                            <th>{translate key='Position'}</th>
                             <th>{translate key='Created'}</th>
                             <th>{translate key='LastLogin'}</th>
                             <th class="action">{translate key='Status'}</th>
@@ -100,12 +97,9 @@
                         {foreach from=$users item=user}
                             {assign var=id value=$user->Id}
                             <tr data-userId="{$id}">
-                                <td>{fullname first=$user->First|unescape:'html' last=$user->Last|unescape:'html' ignorePrivacy="true"}</td>
                                 <td>{$user->Username}</td>
                                 <td><a href="mailto:{$user->Email}" class="link-primary">{$user->Email}</a></td>
                                 <td>{$user->Phone}</td>
-                                <td>{$user->Organization}</td>
-                                <td>{$user->Position}</td>
                                 <td>{format_date date=$user->DateCreated key=short_datetime timezone=$Timezone}</td>
                                 <td>{format_date date=$user->LastLogin key=short_datetime timezone=$Timezone}</td>
                                 <td class="action"><a href="#"
@@ -151,9 +145,6 @@
                                             </li>
                                             <li role="presentation"><a role="menuitem" href="#"
                                                     class="dropdown-item update changePermissions">{translate key="Permissions"}</a>
-                                            </li>
-                                            <li role="presentation"><a role="menuitem" href="#"
-                                                    class="dropdown-item update changeGroups">{translate key="Groups"}</a>
                                             </li>
                                             <li role="presentation"><a role="menuitem" href="#"
                                                     class="dropdown-item update viewReservations">{translate key="Reservations"}</a>
@@ -224,6 +215,7 @@
                                         style="font-size: 0.5rem;"></i></label>
                                 <input type="text" {formname key="USERNAME"} class="required form-control has-feedback"
                                     required id="addUsername" />
+                                <small class="text-muted">`xxx-lab` 形式を推奨します（例: `chemistry-lab`）。</small>
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-6">
@@ -233,30 +225,11 @@
                                         style="font-size: 0.5rem;"></i></label>
                                 <input type="text" {formname key="EMAIL"} class="required form-control has-feedback"
                                     required id="addEmail" />
+                                <small class="text-muted">研究室代表者のメールアドレスを設定してください。</small>
                             </div>
                         </div>
-                        <div class="col-sm-12 col-md-6">
-                            <div class="form-group has-feedback">
-                                <label class="fw-bold" for="addFname">{translate key="FirstName"}<i
-                                        class="bi bi-asterisk text-danger align-top"
-                                        style="font-size: 0.5rem;"></i></label>
-                                <input type="text" {formname key="FIRST_NAME"}
-                                    class="required form-control has-feedback" required id="addFname" />
-                                <i class="glyphicon glyphicon-asterisk form-control-feedback"
-                                    data-bv-icon-for="addFname"></i>
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-6">
-                            <div class="form-group has-feedback">
-                                <label class="fw-bold" for="addLname">{translate key="LastName"}<i
-                                        class="bi bi-asterisk text-danger align-top"
-                                        style="font-size: 0.5rem;"></i></label>
-                                <input type="text" {formname key="LAST_NAME"} class="required form-control has-feedback"
-                                    required id="addLname" />
-                                <i class="glyphicon glyphicon-asterisk form-control-feedback"
-                                    data-bv-icon-for="addLname"></i>
-                            </div>
-                        </div>
+                        <input type="hidden" {formname key="FIRST_NAME"} value="" />
+                        <input type="hidden" {formname key="LAST_NAME"} value="" />
                         <div class="col-sm-12 col-md-6">
                             <div class="form-group has-feedback">
                                 <label class="fw-bold" for="addPassword">{translate key="Password"}<i
@@ -282,28 +255,9 @@
                                 <input type="text" {formname key="PHONE"} class="form-control" id="addPhone" />
                             </div>
                         </div>
-                        <div class="col-sm-12 col-md-6">
-                            <div class="form-group">
-                                <label class="fw-bold" for="addOrganization">{translate key="Organization"}</label>
-                                <input type="text" {formname key="ORGANIZATION"} class="form-control"
-                                    id="addOrganization" />
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-6">
-                            <div class="form-group">
-                                <label class="fw-bold" for="addPosition">{translate key="Position"}</label>
-                                <input type="text" {formname key="POSITION"} class="form-control" id="addPosition" />
-                            </div>
-                        </div>
-                        <div class="col-sm-12 col-md-6">
-                            <div class="form-group has-feedback">
-                                <label class="fw-bold" for="addGroup">{translate key="Group"}</label>
-                                <select id="addGroup" {formname key='GROUP_ID'} class="form-select">
-                                    <option value="">{translate key=None}</option>
-                                    {object_html_options options=$Groups label=Name key=Id}
-                                </select>
-                            </div>
-                        </div>
+                        <input type="hidden" {formname key="ORGANIZATION"} value="" />
+                        <input type="hidden" {formname key="POSITION"} value="" />
+                        <input type="hidden" {formname key="GROUP_ID"} value="" />
                         {if $AttributeList|default:array()|count > 0}
                             <div class="col-12 col-sm-6">
                                 {control type="AttributeControl" attribute=$AttributeList[0]}
@@ -677,7 +631,6 @@
 
             var userOptions = {
                 userAutocompleteUrl: "../ajax/autocomplete.php?type={AutoCompleteType::MyUsers}",
-                orgAutoCompleteUrl: "../ajax/autocomplete.php?type={AutoCompleteType::Organization}",
                 groupsUrl: '{$smarty.server.SCRIPT_NAME}',
                 groupManagementUrl: '{$ManageGroupsUrl}',
                 permissionsUrl: '{$smarty.server.SCRIPT_NAME}',
@@ -702,8 +655,6 @@
                     email: '{$user->Email|escape:"javascript"}',
                     timezone: '{$user->Timezone}',
                     phone: '{$user->Phone|escape:"javascript"}',
-                    organization: '{$user->Organization|escape:"javascript"}',
-                    position: '{$user->Position|escape:"javascript"}',
                     reservationColor: '{$user->ReservationColor|escape:"javascript"}'
                 };
                 userManagement.addUser(user);

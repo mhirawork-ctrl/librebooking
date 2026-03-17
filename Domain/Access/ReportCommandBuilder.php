@@ -45,8 +45,13 @@ class ReportCommandBuilder
 
     public const ACCESSORY_LIST_FRAGMENT = '`resources`.`name` as `resource_name`, `accessories`.`accessory_name`, `accessories`.`accessory_id`, COALESCE(`ar`.`quantity`, 0) as `quantity`';
 
-    public const USER_LIST_FRAGMENT = '`owner`.`fname` as `owner_fname`, `owner`.`lname` as `owner_lname`, `owner`.`email` as `email`, CONCAT(`owner`.`fname`, \' \', `owner`.`lname`) as `owner_name`, `owner`.`user_id` as `owner_id`, 
+    public const USER_LIST_FRAGMENT = '`owner`.`fname` as `owner_fname`, `owner`.`lname` as `owner_lname`, `owner`.`email` as `email`, `owner`.`username` as `owner_name`, `owner`.`user_id` as `owner_id`, 
         `owner`.`organization` as `organization`, `owner`.`position` as `position`, `owner`.`phone` as `phone`, `owner`.`timezone` as `timezone`, `owner`.`language` as `language`';
+
+    public const PURPOSE_LIST_FRAGMENT = 'TRIM(CASE
+        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        ELSE COALESCE(`rs`.`title`, \'\')
+    END) as `reservation_purpose`';
 
     public const GROUP_LIST_FRAGMENT = '`groups`.`name` as `group_name`, `groups`.`group_id`';
 
@@ -92,6 +97,16 @@ class ReportCommandBuilder
     public const GROUP_BY_SCHEDULE_FRAGMENT = 'GROUP BY `schedules`.`schedule_id`';
 
     public const GROUP_BY_USER_FRAGMENT = 'GROUP BY `owner`.`user_id`';
+
+    public const GROUP_BY_PURPOSE_FRAGMENT = 'GROUP BY TRIM(CASE
+        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        ELSE COALESCE(`rs`.`title`, \'\')
+    END)';
+
+    public const GROUP_BY_USER_PURPOSE_FRAGMENT = 'GROUP BY `owner`.`user_id`, TRIM(CASE
+        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        ELSE COALESCE(`rs`.`title`, \'\')
+    END)';
 
     /**
      * @var bool
@@ -144,6 +159,10 @@ class ReportCommandBuilder
     /** @var bool
      */
     private $listUsers = false;
+    /**
+     * @var bool
+     */
+    private $listPurpose = false;
     /**
      * @var bool
      */
@@ -205,6 +224,14 @@ class ReportCommandBuilder
      */
     private $groupByUser = false;
     /**
+     * @var bool
+     */
+    private $groupByPurpose = false;
+    /**
+     * @var bool
+     */
+    private $groupByUserPurpose = false;
+    /**
      * @var int
      */
     private $limit = 0;
@@ -224,6 +251,7 @@ class ReportCommandBuilder
     {
         $this->fullList = true;
         $this->listUsers = true;
+        $this->listPurpose = true;
         return $this;
     }
 
@@ -410,6 +438,27 @@ class ReportCommandBuilder
     /**
      * @return ReportCommandBuilder
      */
+    public function GroupByPurpose()
+    {
+        $this->listPurpose = true;
+        $this->groupByPurpose = true;
+        return $this;
+    }
+
+    /**
+     * @return ReportCommandBuilder
+     */
+    public function GroupByUserAndPurpose()
+    {
+        $this->listUsers = true;
+        $this->listPurpose = true;
+        $this->groupByUserPurpose = true;
+        return $this;
+    }
+
+    /**
+     * @return ReportCommandBuilder
+     */
     public function GroupBySchedule()
     {
         $this->joinResources = true;
@@ -515,6 +564,10 @@ class ReportCommandBuilder
             $selectSql->AppendSelect(self::SCHEDULE_LIST_FRAGMENT);
         }
 
+        if ($this->listPurpose && ($this->fullList || $this->groupByPurpose || $this->groupByUserPurpose)) {
+            $selectSql->AppendSelect(self::PURPOSE_LIST_FRAGMENT);
+        }
+
         return $selectSql;
     }
 
@@ -618,6 +671,14 @@ class ReportCommandBuilder
 
         if ($this->groupByUser) {
             $groupBy->Append(self::GROUP_BY_USER_FRAGMENT);
+        }
+
+        if ($this->groupByPurpose) {
+            $groupBy->Append(self::GROUP_BY_PURPOSE_FRAGMENT);
+        }
+
+        if ($this->groupByUserPurpose) {
+            $groupBy->Append(self::GROUP_BY_USER_PURPOSE_FRAGMENT);
         }
 
         return $groupBy;

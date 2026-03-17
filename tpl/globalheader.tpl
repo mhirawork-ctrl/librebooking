@@ -241,9 +241,6 @@
                                         <li id="navManageUsers"><a class="dropdown-item"
                                                 href="{$Path}admin/manage_users.php">{translate key="ManageUsers"}</a>
                                         </li>
-                                        <li id="navManageGroups"><a class="dropdown-item"
-                                                href="{$Path}admin/manage_groups.php">{translate key="ManageGroups"}</a>
-                                        </li>
 
                                         <li id="navManageAnnouncements"><a class="dropdown-item"
                                                 href="{$Path}admin/manage_announcements.php">{translate key="ManageAnnouncements"}</a>
@@ -271,9 +268,6 @@
                                             </li>
                                             <li id="navResponsibilitiesGAReservations"><a class="dropdown-item"
                                                     href="{$Path}admin/manage_group_reservations.php">{translate key="GroupReservations"}</a>
-                                            </li>
-                                            <li id="navResponsibilitiesGAGroups"><a class="dropdown-item"
-                                                    href="{$Path}admin/manage_admin_groups.php">{translate key="ManageGroups"}</a>
                                             </li>
                                         {/if}
                                         {if (isset($CanViewResourceAdmin) && $CanViewResourceAdmin) || (isset($CanViewScheduleAdmin) && $CanViewScheduleAdmin)}

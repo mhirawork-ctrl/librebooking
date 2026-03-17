@@ -80,7 +80,17 @@
 								<input type="radio" class="btn-check" {formname key=REPORT_GROUPBY}
 									value="{Report_GroupBy::USER}" id="groupby_user" />
 								<label for="groupby_user" class="btn btn-outline-primary"><i
-										class="bi bi-person-fill me-1"></i>{translate key=User}</label>
+										class="bi bi-person-fill me-1"></i>{translate key=Username}</label>
+
+								<input type="radio" class="btn-check" {formname key=REPORT_GROUPBY}
+									value="{Report_GroupBy::PURPOSE}" id="groupby_purpose" />
+								<label for="groupby_purpose" class="btn btn-outline-primary"><i
+										class="bi bi-journal-text me-1"></i>{translate key=Purpose}</label>
+
+								<input type="radio" class="btn-check" {formname key=REPORT_GROUPBY}
+									value="{Report_GroupBy::USER_PURPOSE}" id="groupby_user_purpose" />
+								<label for="groupby_user_purpose" class="btn btn-outline-primary"><i
+										class="bi bi-diagram-3 me-1"></i>{translate key=UserAndPurpose}</label>
 
 								<input type="radio" class="btn-check" {formname key=REPORT_GROUPBY}
 									value="{Report_GroupBy::GROUP}" id="groupby_group" />

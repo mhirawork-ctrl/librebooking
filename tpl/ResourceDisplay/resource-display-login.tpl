@@ -16,7 +16,7 @@
 					<div class="input-group margin-bottom-25">
 						<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
 						<input type="text" required="" class="form-control" id="email" {formname key=EMAIL}
-							placeholder="{translate key=UsernameOrEmail}" />
+							placeholder="{translate key=Username}" />
 					</div>
 				</div>
 

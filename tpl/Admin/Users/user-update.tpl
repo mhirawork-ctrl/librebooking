@@ -15,6 +15,7 @@
 						class="bi bi-asterisk text-danger align-top" style="font-size: 0.5rem;"></i></label>
 				<input type="text" {formname key="USERNAME"} class="required form-control has-feedback" required
 					id="username" value="{$User->Username()}" />
+				<small class="text-muted">`xxx-lab` 形式を推奨します（例: `chemistry-lab`）。</small>
 			</div>
 		</div>
 
@@ -24,26 +25,11 @@
 						class="bi bi-asterisk text-danger align-top" style="font-size: 0.5rem;"></i></label>
 				<input type="text" {formname key="EMAIL"} class="required form-control has-feedback" required id="email"
 					value="{$User->EmailAddress()}" />
+				<small class="text-muted">研究室代表者のメールアドレスを設定してください。</small>
 			</div>
 		</div>
-
-		<div class="col-sm-12 col-md-6">
-			<div class="form-group">
-				<label class="fw-bold" for="fname">{translate key="FirstName"}<i
-						class="bi bi-asterisk text-danger align-top" style="font-size: 0.5rem;"></i></label>
-				<input type="text" {formname key="FIRST_NAME"} class="required form-control has-feedback" required
-					id="fname" value="{$User->FirstName()}" />
-			</div>
-		</div>
-
-		<div class="col-sm-12 col-md-6">
-			<div class="form-group">
-				<label class="fw-bold" for="lname">{translate key="LastName"}<i
-						class="bi bi-asterisk text-danger align-top" style="font-size: 0.5rem;"></i></label>
-				<input type="text" {formname key="LAST_NAME"} class="required form-control has-feedback" required
-					id="lname" value="{$User->LastName()}" />
-			</div>
-		</div>
+		<input type="hidden" {formname key="FIRST_NAME"} value="{$User->Username()}" />
+		<input type="hidden" {formname key="LAST_NAME"} value="" />
 
 		<div class="col-sm-12 col-md-6">
 			<div class="form-group">
@@ -61,22 +47,8 @@
 					value="{$User->GetAttribute(UserAttribute::Phone)}" />
 			</div>
 		</div>
-
-		<div class="col-sm-12 col-md-6">
-			<div class="form-group">
-				<label class="fw-bold" for="organization">{translate key="Organization"}</label>
-				<input type="text" {formname key="ORGANIZATION"} class="form-control" id="organization"
-					value="{$User->GetAttribute(UserAttribute::Organization)}" />
-			</div>
-		</div>
-
-		<div class="col-sm-12 col-md-6">
-			<div class="form-group">
-				<label class="fw-bold" for="position">{translate key="Position"}</label>
-				<input type="text" {formname key="POSITION"} class="form-control" id="position"
-					value="{$User->GetAttribute(UserAttribute::Position)}" />
-			</div>
-		</div>
+		<input type="hidden" {formname key="ORGANIZATION"} value="" />
+		<input type="hidden" {formname key="POSITION"} value="" />
 
 		{foreach from=$Attributes item=attribute}
 			<div class="col-sm-12 col-md-6">

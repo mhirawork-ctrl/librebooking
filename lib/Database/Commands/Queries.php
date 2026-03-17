@@ -308,7 +308,7 @@ class Queries
             VALUES (@userid, @original_credit_count, @credit_count, @credit_note, @dateCreated)';
 
     public const LOGIN_USER =
-        'SELECT * FROM `users` WHERE (`username` = @username OR `email` = @username)';
+        'SELECT * FROM `users` WHERE `username` = @username';
 
     public const GET_ACCESSORY_BY_ID = 'SELECT * FROM `accessories` WHERE `accessory_id` = @accessoryid';
 
@@ -1254,7 +1254,7 @@ class Queries
     public const VALIDATE_USER =
         'SELECT `user_id`, `password`, `salt`, `legacypassword`
 		FROM `users`
-		WHERE (`username` = @username OR `email` = @username) AND `status_id` = 1';
+		WHERE `username` = @username AND `status_id` = 1';
 }
 
 class QueryBuilder

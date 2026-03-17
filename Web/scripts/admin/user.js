@@ -69,10 +69,6 @@ function UserManagement(opts) {
       changeStatus($(this));
     });
 
-    elements.userList.on('click', '.changeGroups', function (e) {
-      changeGroups();
-    });
-
     elements.userList.on('click', '.changePermissions', function (e) {
       changePermissions();
     });
@@ -98,7 +94,7 @@ function UserManagement(opts) {
 
     elements.userList.on('click', '.viewReservations', function (e) {
       var user = getActiveUser();
-      var name = encodeURI(user.first + ' ' + user.last);
+      var name = encodeURI(user.username);
       var url = options.manageReservationsUrl + '?uid=' + user.id + '&un=' + name;
       window.location.href = url;
     });
@@ -259,9 +255,6 @@ function UserManagement(opts) {
       elements.inviteEmails.val('');
       elements.invitationDialog.modal('hide');
     };
-
-    $('#addOrganization').orgAutoComplete(options.orgAutoCompleteUrl);
-    $('#organization').orgAutoComplete(options.orgAutoCompleteUrl);
 
     ConfigureAsyncForm(
       elements.permissionsForm,
