@@ -489,4 +489,6 @@ ShowButtonPanel='true'
 OnSelect='dpDateChanged'
 FirstDay=$FirstWeekday}
 
-{include file='globalfooter.tpl'}
+{if !isset($EmbeddedInDashboard) || !$EmbeddedInDashboard}
+    {include file='globalfooter.tpl'}
+{/if}

@@ -76,6 +76,11 @@ class SlotLabelFactory
             return '';
         }
 
+        $reservationSummary = $this->BuildReservationSummaryLabel($reservation->Title, $reservation->Description);
+        if ($reservationSummary !== '') {
+            return $reservationSummary;
+        }
+
         if (empty($format)) {
             $format = Configuration::Instance()->GetKey(ConfigKeys::SCHEDULE_RESERVATION_LABEL);
         }
@@ -136,6 +141,41 @@ class SlotLabelFactory
         }
 
         return $label;
+    }
+
+    private function BuildReservationSummaryLabel($title, $description)
+    {
+        $title = trim((string)$title);
+        $description = trim((string)$description);
+
+        if ($title === '' && $description === '') {
+            return '';
+        }
+
+        $labelParts = [];
+
+        if ($title !== '') {
+            $labelParts[] = sprintf(
+                '<span class="reservation-summary">%s</span>',
+                htmlspecialchars($title, ENT_QUOTES)
+            );
+        }
+
+        if ($description !== '') {
+            $notes = $description;
+            if (function_exists('mb_strimwidth')) {
+                $notes = mb_strimwidth($description, 0, 120, '...');
+            } elseif (strlen($description) > 120) {
+                $notes = substr($description, 0, 117) . '...';
+            }
+
+            $labelParts[] = sprintf(
+                '<span class="reservation-note">%s</span>',
+                nl2br(htmlspecialchars($notes, ENT_QUOTES))
+            );
+        }
+
+        return implode('', $labelParts);
     }
 
     protected function GetFullName(ReservationItemView $reservation)

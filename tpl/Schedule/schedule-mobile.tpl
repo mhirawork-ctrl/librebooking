@@ -18,7 +18,7 @@
         <div class="reserved {$class} {$OwnershipClass} clickres" resid="{$Slot->Id()}" {$color}
             id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}"><i class="bi bi-info-circle-fill"></i>
             {formatdate date=$Slot->BeginDate() key=period_time} - {formatdate date=$Slot->EndDate() key=period_time}
-            {$badge}{$Slot->Label($SlotLabelFactory)|escapequotes}</div>
+            {$badge}{$Slot->Label($SlotLabelFactory) nofilter}</div>
     {/function}
 
     {function name=displayAdminReservedMobile}
@@ -50,7 +50,7 @@
         <div class="unreservable" resid="{$Slot->Id()}" {$color} id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}"><i
                 class="bi bi-info-circle-fill"></i>
             {formatdate date=$Slot->BeginDate() key=period_time} - {formatdate date=$Slot->EndDate() key=period_time}
-            {$Slot->Label($SlotLabelFactory)|escapequotes}</div>
+            {$Slot->Label($SlotLabelFactory) nofilter}</div>
     {/function}
 
     {function name=displaySlotMobile}

@@ -1243,4 +1243,9 @@ class FakeSchedulePage implements ISchedulePage
     {
         return '';
     }
+
+    public function IsHomeOverviewRequest(): bool
+    {
+        return false;
+    }
 }

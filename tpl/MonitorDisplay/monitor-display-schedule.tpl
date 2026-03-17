@@ -7,7 +7,7 @@
     {/if}
     <td {$spantype|default:'col'}span="{$Slot->PeriodSpan()}" class="reserved {$class} {$OwnershipClass} clickres slot"
         resid="{$Slot->Id()}" {$color} {if $Draggable}draggable="true" {/if} data-resourceId="{$ResourceId}"
-        id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}">{$Slot->Label($SlotLabelFactory)|escapequotes}</td>
+        id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}">{$Slot->Label($SlotLabelFactory) nofilter}</td>
 {/function}
 
 {function name=displayMyReserved}
@@ -30,7 +30,7 @@
 {function name=displayPastTime}
     <td {$spantype|default:'col'}span="{$Slot->PeriodSpan()}" ref="{$SlotRef}" class="pasttime slot"
         draggable="{$CanViewAdmin}" resid="{$Slot->Id()}" data-resourceId="{$ResourceId}">
-        {$Slot->Label($SlotLabelFactory)|escapequotes}</td>
+        {$Slot->Label($SlotLabelFactory) nofilter}</td>
 {/function}
 
 {function name=displayReservable}
@@ -72,7 +72,7 @@
                                 {assign var=slotformat value=short_reservation_date}
                             {/if}
                             {formatdate date=$slot->EndDate() key=$slotformat}
-                            {$slot->Label($SlotLabelFactory)|escapequotes}
+                            {$slot->Label($SlotLabelFactory) nofilter}
                         </div>
                     {/if}
                 {/foreach}

@@ -222,6 +222,11 @@ class ReservationPopupPage extends Page implements IReservationPopupPage
 
     public function SetName($first, $last)
     {
+        if (empty($last)) {
+            $this->Set('fullName', $first);
+            return;
+        }
+
         $this->Set('fullName', new FullName($first, $last));
     }
 
@@ -385,15 +390,22 @@ class ReservationPopupPresenter
         $startDate = $reservation->StartDate->ToTimezone($tz);
         $endDate = $reservation->EndDate->ToTimezone($tz);
 
+        $owner = $this->_userRepository->LoadById($reservation->OwnerId);
+
+        $displayOwnerName = $reservation->OwnerFirstName;
+        if (!empty($owner) && !empty($owner->Username())) {
+            $displayOwnerName = $owner->Username();
+        }
+
         $this->_page->SetId($reservation->OwnerId);
-        $this->_page->SetName($reservation->OwnerFirstName, $reservation->OwnerLastName);
+        $this->_page->SetName($displayOwnerName, '');
         $this->_page->SetEmail($reservation->OwnerEmailAddress);
-        $this->_page->SetPhone($reservation->OwnerPhone);
+        $this->_page->SetPhone('');
         $this->_page->SetResources($reservation->Resources);
-        $this->_page->SetParticipants($reservation->Participants);
+        $this->_page->SetParticipants([]);
         $this->_page->SetSummary($reservation->Description);
         $this->_page->SetTitle($reservation->Title);
-        $this->_page->SetAccessories($reservation->Accessories);
+        $this->_page->SetAccessories([]);
         $this->_page->SetRequiresApproval($reservation->RequiresApproval());
         $duration = $reservation->StartDate->GetDifference($reservation->EndDate);
         $this->_page->SetDuration($duration);
@@ -401,7 +413,6 @@ class ReservationPopupPresenter
         $this->_page->SetDates($startDate, $endDate);
 
         $user = $this->_userRepository->LoadById(ServiceLocator::GetServer()->GetUserSession()->UserId);
-        $owner = $this->_userRepository->LoadById($reservation->OwnerId);
 
         $this->UserResourcePermissions(ServiceLocator::GetServer()->GetUserSession()->UserId);
         $this->_page->SetCurrentUserParticipating($this->IsCurrentUserParticipating(ServiceLocator::GetServer()->GetUserSession()->UserId));

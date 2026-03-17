@@ -288,9 +288,34 @@ abstract class ReservationPage extends Page implements IReservationPage
 
     public function SetReservationUser(UserDto $user)
     {
-        $this->Set('ReservationUserName', $user->FullName());
+        $userName = $user->Username();
+        if (empty($userName)) {
+            $userName = $user->FullName();
+        }
+        $this->Set('ReservationUserName', $userName);
+        $this->Set('ReservationPhoneOptions', $this->ParsePhoneOptions($user->Phone()));
         $this->Set('UserId', $user->Id());
         $this->Set('CurrentUserCredits', $user->CurrentCreditCount());
+    }
+
+    private function ParsePhoneOptions($phoneValue)
+    {
+        if (empty($phoneValue)) {
+            return [];
+        }
+
+        $parts = preg_split('/[\r\n,;、]+/u', (string)$phoneValue);
+        $options = [];
+
+        foreach ($parts as $part) {
+            $candidate = trim((string)$part);
+            if ($candidate === '') {
+                continue;
+            }
+            $options[$candidate] = $candidate;
+        }
+
+        return array_values($options);
     }
 
     public function SetReservationResource($resource)

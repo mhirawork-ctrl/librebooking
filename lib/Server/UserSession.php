@@ -3,6 +3,7 @@
 class UserSession
 {
     public $UserId = '';
+    public $Username = '';
     public $FirstName = '';
     public $LastName = '';
     public $Email = '';

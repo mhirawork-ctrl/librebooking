@@ -149,7 +149,7 @@
                                                                             data-begin="{$slot->Begin()}"
                                                                             data-end="{$slot->End()}" class="slot {$class}"
                                                                             data-refnum="{$referenceNumber}">
-                                                                            {$slot->Label($SlotLabelFactory)|escape|default:'&nbsp;'}
+                                                                            {$slot->Label($SlotLabelFactory)|default:'&nbsp;' nofilter}
                                                                         </td>
                                                                     {/foreach}
                                                                 </tr>
