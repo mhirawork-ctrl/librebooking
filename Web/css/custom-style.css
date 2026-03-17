@@ -693,11 +693,18 @@ body {
 
 #page-reservation .reservation-sidebar {
   align-self: flex-start;
+  position: sticky;
+  top: 108px;
+  z-index: 10;
 }
 
 #page-reservation .reservation-sidebar > .card:first-child {
   position: static;
   top: auto;
+  z-index: auto;
+  max-height: calc(100vh - 124px);
+  overflow: auto;
+  scrollbar-gutter: stable;
 }
 
 #page-reservation .card-header.bg-body-tertiary {
@@ -932,8 +939,17 @@ body {
     flex: 1 1 auto;
   }
 
+  #page-reservation .reservation-sidebar {
+    position: static;
+    top: auto;
+    z-index: auto;
+  }
+
   #page-reservation .reservation-main > .card:first-child,
   #page-reservation .reservation-sidebar > .card:first-child {
     position: static;
+    top: auto;
+    max-height: none;
+    overflow: visible;
   }
 }

@@ -224,7 +224,11 @@
 								data-bs-html="true">
 								<td class="id d-none">{$reservationId}</td>
 								<td class="user">
-									{fullname first=$reservation->FirstName|unescape:'html' last=$reservation->LastName|unescape:'html' ignorePrivacy=true}
+									{if !empty($reservation->UserName)}
+										{$reservation->UserName|escape:'html'}
+									{else}
+										{fullname first=$reservation->FirstName|unescape:'html' last=$reservation->LastName|unescape:'html' ignorePrivacy=true}
+									{/if}
 								</td>
 								<td class="resource">{$reservation->ResourceName}
 									{if $reservation->ResourceStatusId == ResourceStatus::AVAILABLE}

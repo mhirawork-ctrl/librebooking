@@ -317,6 +317,7 @@ class ColumnNames
     public const OWNER_FIRST_NAME = 'owner_fname';
     public const OWNER_LAST_NAME = 'owner_lname';
     public const OWNER_FULL_NAME_ALIAS = 'owner_name';
+    public const OWNER_USERNAME = 'owner_username';
     public const OWNER_USER_ID = 'owner_id';
     public const OWNER_PHONE = 'owner_phone';
     public const OWNER_ORGANIZATION = 'owner_organization';

@@ -11,6 +11,7 @@ function Reservation(opts) {
     reservationOwnerSummary: $('#reservationOwnerSummary'),
     reservationPurposeSummary: $('#reservationPurposeSummary'),
     reservationResourceSummary: $('#reservationResourceSummary'),
+    reservationDateSummary: $('#reservationDateSummary'),
     reservationDescriptionSummary: $('#reservationDescriptionSummary'),
     description: $('#description'),
 
@@ -208,6 +209,36 @@ function Reservation(opts) {
 
     const description = $.trim(elements.description.val());
     elements.reservationDescriptionSummary.text(_.isEmpty(description) ? '未入力' : description);
+  }
+
+  function getSelectedPeriodLabel(periodElement) {
+    if (!periodElement.length) {
+      return '';
+    }
+
+    const selectedText = $.trim(periodElement.find('option:selected').text());
+    const rawValue = $.trim(periodElement.val());
+    return _.isEmpty(selectedText) ? rawValue : selectedText;
+  }
+
+  function updateReservationDateSummary() {
+    if (!elements.reservationDateSummary.length) {
+      return;
+    }
+
+    const beginDate = $.trim(elements.beginDate.val());
+    const endDate = $.trim(elements.endDate.val());
+    const beginTime = getSelectedPeriodLabel(elements.beginTime);
+    const endTime = getSelectedPeriodLabel(elements.endTime);
+
+    if (_.isEmpty(beginDate) || _.isEmpty(endDate)) {
+      elements.reservationDateSummary.text('未設定');
+      return;
+    }
+
+    const startSummary = _.compact([beginDate, beginTime]).join(' ');
+    const endSummary = _.compact([endDate, endTime]).join(' ');
+    elements.reservationDateSummary.text(startSummary + ' - ' + endSummary);
   }
 
   function observeReservationUserName() {
@@ -456,6 +487,8 @@ function Reservation(opts) {
     elements.reservationContactName.on('input', syncReservationSummaryFields);
     elements.reservationContactExtension.on('input', syncReservationSummaryFields);
     elements.description.on('input', updateReservationDescriptionSummary);
+    elements.beginDate.add(elements.endDate).add(elements.beginTime).add(elements.endTime).change(updateReservationDateSummary);
+    updateReservationDateSummary();
   };
 
   function SetDeleteReason() {
@@ -1162,6 +1195,7 @@ function Reservation(opts) {
       PopulatePeriodDropDown(elements.beginDate, elements.beginTime, 'begin');
       AdjustEndDate();
       DisplayDuration();
+      updateReservationDateSummary();
       SelectRepeatWeekday();
 
       elements.beginDate.data['beginPreviousVal'] = elements.beginDate.val();
@@ -1170,6 +1204,7 @@ function Reservation(opts) {
     function EndDateChanged() {
       PopulatePeriodDropDown(elements.endDate, elements.endTime, 'end');
       DisplayDuration();
+      updateReservationDateSummary();
       CalculateCredits();
       elements.endDate.data['endPreviousVal'] = elements.endDate.val();
     }
@@ -1194,11 +1229,13 @@ function Reservation(opts) {
       elements.beginTime.data['beginTimePreviousVal'] = elements.beginTime.val();
 
       DisplayDuration();
+      updateReservationDateSummary();
       CalculateCredits();
     });
 
     elements.endTime.change(function () {
       DisplayDuration();
+      updateReservationDateSummary();
       CalculateCredits();
     });
 

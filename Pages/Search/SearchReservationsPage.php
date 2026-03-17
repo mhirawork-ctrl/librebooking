@@ -129,7 +129,7 @@ class SearchReservationsPage extends ActionPage implements ISearchReservationsPa
 
     public function SetCurrentUser(UserSession $userSession)
     {
-        $this->Set('UserNameFilter', sprintf('%s (%s)', new FullName($userSession->FirstName, $userSession->LastName), $userSession->Email));
+        $this->Set('UserNameFilter', $userSession->Username);
         $this->Set('UserIdFilter', $userSession->UserId);
     }
 

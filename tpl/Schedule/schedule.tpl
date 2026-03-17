@@ -449,6 +449,7 @@
         resourceMaxConcurrentReservations,
         autoScrollToday: {$AutoScrollToday|@json_encode},
         altFormatDate: "{Resources::GetInstance()->GetDateFormat('schedule_daily')}",
+        embeddedInDashboard: {if isset($EmbeddedInDashboard) && $EmbeddedInDashboard}true{else}false{/if},
     };
 
     const resourceOrder = [];

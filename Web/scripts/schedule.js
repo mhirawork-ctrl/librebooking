@@ -59,6 +59,15 @@ function Schedule(opts, resourceGroups) {
     }
   };
 
+  function navigateToReservation(url) {
+    if (options.embeddedInDashboard && window.self !== window.top) {
+      window.top.location = url;
+      return;
+    }
+
+    window.location = url;
+  }
+
   function renderEvents(clear = false) {
     $('#loading-schedule').removeClass('d-none');
     renderingEvents = true;
@@ -84,7 +93,7 @@ function Schedule(opts, resourceGroups) {
 
       div.click(function (e) {
         var reservationUrl = options.reservationUrlTemplate.replace('[referenceNumber]', resid);
-        window.location = reservationUrl;
+        navigateToReservation(reservationUrl);
       });
 
       if (opts.isMobileView) {
@@ -972,7 +981,7 @@ function Schedule(opts, resourceGroups) {
       }
 
       const link = startTd.data('href');
-      window.location = link + '&sd=' + sd + '&ed=' + ed;
+      navigateToReservation(link + '&sd=' + sd + '&ed=' + ed);
     }
 
     if (options.disableSelectable != '1') {

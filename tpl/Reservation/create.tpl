@@ -15,11 +15,51 @@
 </div>
 {/function}
 
-<div id="page-reservation">
+<div id="page-reservation" class="{if isset($ReferenceNumber) && $ReferenceNumber neq ''}reservation-existing-page{else}reservation-create-page{/if}">
+    <style>
+        @media (min-width: 768px) {
+            #page-reservation .reservation-sidebar {
+                align-self: flex-start !important;
+                height: fit-content !important;
+                position: sticky !important;
+                top: 108px !important;
+                z-index: 10 !important;
+            }
+
+            #page-reservation .reservation-sidebar > .card:first-child {
+                max-height: calc(100vh - 124px) !important;
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                scrollbar-gutter: stable !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            #page-reservation .reservation-sidebar {
+                height: auto !important;
+                position: static !important;
+                top: auto !important;
+                z-index: auto !important;
+            }
+
+            #page-reservation .reservation-sidebar > .card:first-child {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+        }
+    </style>
+    <script>
+        if (window.self !== window.top) {
+            try {
+                window.top.location = window.location.href;
+            } catch (error) {
+            }
+        }
+    </script>
     <div id="reservation-box" class="container-fluid px-0">
         <form id="form-reservation" method="post" enctype="multipart/form-data" role="form">
             <div class="row g-3 my-3">
-                <div class="col-xl-9 reservation-main">
+                <div class="col-md-8 col-xl-9 reservation-main">
                     <div class="card shadow-sm border-0 mb-3">
                         <div class="card-body p-3 p-lg-4">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
@@ -368,7 +408,7 @@
                     </div>
                 </div>
 
-                <div class="col-xl-3 reservation-sidebar">
+                <div class="col-md-4 col-xl-3 reservation-sidebar">
                     <div class="card shadow-sm border-0">
                         <div class="card-header bg-body-tertiary border-0 py-3">
                             <div class="fw-bold">予約内容確認</div>
@@ -390,9 +430,10 @@
                             <div class="fw-bold mb-3" id="reservationResourceSummary">{if isset($Resource) && $Resource}{$Resource->Name}{else}-{/if}</div>
 
                             <div class="small text-muted mb-1">日時</div>
-                            <div class="mb-3">
+                            <div class="mb-3" id="reservationDateSummary">
                                 {if isset($StartDate) && isset($EndDate)}
-                                {formatdate date=$StartDate} - {formatdate date=$EndDate}
+                                {formatdate date=$StartDate}{if isset($startPeriod)} {$startPeriod->Label()}{/if} -
+                                {formatdate date=$EndDate}{if isset($endPeriod)} {$endPeriod->LabelEnd()}{/if}
                                 {else}
                                 未設定
                                 {/if}
