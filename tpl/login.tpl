@@ -44,7 +44,7 @@
                             <div class="input-group mb-2">
                                 <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
                                 <input type="text" required="" class="form-control" id="email" {formname key=EMAIL}
-                                    placeholder="{translate key=UsernameOrEmail}" />
+                                    placeholder="{translate key=Username}" />
                             </div>
                         {/if}
 

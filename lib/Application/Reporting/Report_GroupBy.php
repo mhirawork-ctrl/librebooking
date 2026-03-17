@@ -6,6 +6,8 @@ class Report_GroupBy
     public const RESOURCE = 'RESOURCE';
     public const SCHEDULE = 'SCHEDULE';
     public const USER = 'USER';
+    public const PURPOSE = 'PURPOSE';
+    public const USER_PURPOSE = 'USER_PURPOSE';
     public const GROUP = 'GROUP';
 
     /**
@@ -31,6 +33,12 @@ class Report_GroupBy
         }
         if ($this->groupBy == self::USER) {
             $builder->GroupByUser();
+        }
+        if ($this->groupBy == self::PURPOSE) {
+            $builder->GroupByPurpose();
+        }
+        if ($this->groupBy == self::USER_PURPOSE) {
+            $builder->GroupByUserAndPurpose();
         }
         if ($this->groupBy == self::RESOURCE) {
             $builder->GroupByResource();

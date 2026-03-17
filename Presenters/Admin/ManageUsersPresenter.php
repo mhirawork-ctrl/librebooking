@@ -229,17 +229,18 @@ class ManageUsersPresenter extends ActionPresenter implements IManageUsersPresen
 
     public function AddUser()
     {
+        $userName = trim((string)$this->page->GetUserName());
         $defaultHomePageId = Configuration::Instance()->GetKey(ConfigKeys::DEFAULT_HOMEPAGE, new IntConverter());
         $extraAttributes = [
-            UserAttribute::Organization => $this->page->GetOrganization(),
+            UserAttribute::Organization => '',
             UserAttribute::Phone => $this->page->GetPhone(),
-            UserAttribute::Position => $this->page->GetPosition()];
+            UserAttribute::Position => ''];
 
         $user = $this->manageUsersService->AddUser(
-            $this->page->GetUserName(),
+            $userName,
             $this->page->GetEmail(),
-            $this->page->GetFirstName(),
-            $this->page->GetLastName(),
+            $userName,
+            '',
             $this->page->GetPassword(),
             $this->page->GetTimezone(),
             Configuration::Instance()->GetKey(ConfigKeys::DEFAULT_LANGUAGE),
@@ -269,18 +270,19 @@ class ManageUsersPresenter extends ActionPresenter implements IManageUsersPresen
     public function UpdateUser()
     {
         Log::Debug('Updating user %s', $this->page->GetUserId());
+        $userName = trim((string)$this->page->GetUserName());
 
         $extraAttributes = [
-            UserAttribute::Organization => $this->page->GetOrganization(),
+            UserAttribute::Organization => '',
             UserAttribute::Phone => $this->page->GetPhone(),
-            UserAttribute::Position => $this->page->GetPosition()];
+            UserAttribute::Position => ''];
 
         $this->manageUsersService->UpdateUser(
             $this->page->GetUserId(),
-            $this->page->GetUserName(),
+            $userName,
             $this->page->GetEmail(),
-            $this->page->GetFirstName(),
-            $this->page->GetLastName(),
+            $userName,
+            '',
             $this->page->GetTimezone(),
             $extraAttributes,
             $this->GetAttributeValues()

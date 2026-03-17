@@ -58,6 +58,7 @@ class ReportDefinition implements IReportDefinition
             ColumnNames::DURATION_ALIAS => new ReportTimeColumn('Duration', ChartColumnDefinition::Null(), false),
             ColumnNames::DURATION_HOURS => new ReportStringColumn('Hours', ChartColumnDefinition::Null()),
             ColumnNames::RESERVATION_TITLE => new ReportStringColumn('Title', ChartColumnDefinition::Null()),
+            ColumnNames::RESERVATION_PURPOSE => new ReportStringColumn('Purpose', ChartColumnDefinition::Label(ColumnNames::RESERVATION_PURPOSE)),
             ColumnNames::RESERVATION_DESCRIPTION => new ReportStringColumn('Description', ChartColumnDefinition::Null()),
             ColumnNames::REFERENCE_NUMBER => new ReportStringColumn('ReferenceNumber', ChartColumnDefinition::Null()),
             ColumnNames::OWNER_FULL_NAME_ALIAS => new ReportStringColumn('User', ChartColumnDefinition::Label(ColumnNames::OWNER_USER_ID)),

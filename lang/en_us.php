@@ -413,6 +413,8 @@ class en_us extends Language
         $strings['Count'] = 'Count';
         $strings['Usage'] = 'Usage';
         $strings['AggregateBy'] = 'Aggregate By';
+        $strings['Purpose'] = 'Purpose';
+        $strings['UserAndPurpose'] = 'Username x Purpose';
         $strings['Range'] = 'Range';
         $strings['Choose'] = 'Choose';
         $strings['All'] = 'All';
