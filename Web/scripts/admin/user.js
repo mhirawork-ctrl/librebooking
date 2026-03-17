@@ -58,6 +58,7 @@ function UserManagement(opts) {
   };
 
   var users = {};
+  var permissionState = {};
 
   UserManagement.prototype.init = function () {
     elements.userList.on('click', '.update', function (e) {
@@ -149,17 +150,26 @@ function UserManagement(opts) {
 
     elements.checkAllResourcesFull.click(function (e) {
       e.preventDefault();
-      elements.permissionsDialog.find('.full').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_0';
+      }
+      syncSelectsFromState();
     });
 
     elements.checkAllResourcesView.click(function (e) {
       e.preventDefault();
-      elements.permissionsDialog.find('.view').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_1';
+      }
+      syncSelectsFromState();
     });
 
     elements.checkNoResources.click(function (e) {
       e.preventDefault();
-      elements.permissionsDialog.find('.none').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_none';
+      }
+      syncSelectsFromState();
     });
 
     $('.save').click(function () {
@@ -215,9 +225,25 @@ function UserManagement(opts) {
       elements.deleteMultiplePrompt.toggleClass('d-none', numberChecked == 0);
     });
 
+    var cleanupPermissionsForm = function () {
+      elements.permissionsForm.find('select.resourceId').attr('name', 'resourceId[]');
+      elements.permissionsForm.find('.injected-permission').remove();
+    };
+
     var hidePermissionsDialog = function () {
       hideDialog(elements.permissionsDialog);
     };
+
+    elements.permissionsDialog.on('hidden.bs.modal', cleanupPermissionsForm);
+
+    elements.permissionsForm.on('change', 'select.resourceId', function () {
+      var rid = $(this).attr('id').replace('permission_', '');
+      permissionState[rid] = $(this).val();
+    });
+
+    $('#permissionsFormFilter').on('draw.dt', function () {
+      syncSelectsFromState();
+    });
 
     var hidePasswordDialog = function () {
       hideDialog(elements.passwordDialog);
@@ -263,11 +289,25 @@ function UserManagement(opts) {
     $('#addOrganization').orgAutoComplete(options.orgAutoCompleteUrl);
     $('#organization').orgAutoComplete(options.orgAutoCompleteUrl);
 
+    var permissionsBeforeSerialize = function (jqForm) {
+      jqForm.find('.injected-permission').remove();
+      for (var rid in permissionState) {
+        var val = permissionState[rid];
+        if (val.indexOf('_none') === -1) {
+          jqForm.append(
+            $('<input>', { type: 'hidden', class: 'injected-permission', name: 'resourceId[]', value: val })
+          );
+        }
+      }
+      jqForm.find('select.resourceId').attr('name', '');
+    };
+
     ConfigureAsyncForm(
       elements.permissionsForm,
       defaultSubmitCallback(elements.permissionsForm),
       hidePermissionsDialog,
-      error
+      error,
+      { onBeforeSerialize: permissionsBeforeSerialize }
     );
     ConfigureAsyncForm(elements.passwordForm, defaultSubmitCallback(elements.passwordForm), hidePasswordDialog, error);
     ConfigureAsyncForm(
@@ -384,20 +424,43 @@ function UserManagement(opts) {
     elements.groupsDialog.modal('show');
   };
 
+  var syncSelectsFromState = function () {
+    var table = $('#permissionsFormFilter').DataTable();
+    table.rows({ page: 'current' }).every(function () {
+      var select = $(this.node()).find('select.resourceId');
+      if (select.length) {
+        var rid = select.attr('id').replace('permission_', '');
+        if (permissionState[rid] !== undefined) {
+          select.val(permissionState[rid]);
+        }
+      }
+    });
+  };
+
   var changePermissions = function () {
     var user = getActiveUser();
     var data = { dr: 'permissions', uid: user.id };
     $.get(opts.permissionsUrl, data, function (permissions) {
-      elements.permissionsForm.find('.none').prop('selected', true);
+      permissionState = {};
+
+      var table = $('#permissionsFormFilter').DataTable();
+      table.rows({ search: 'none' }).every(function () {
+        var select = $(this.node()).find('select.resourceId');
+        if (select.length) {
+          var rid = select.attr('id').replace('permission_', '');
+          permissionState[rid] = rid + '_none';
+        }
+      });
 
       $.each(permissions.full, function (index, value) {
-        elements.permissionsForm.find('#permission_' + value).val(value + '_0');
+        permissionState[value] = value + '_0';
       });
 
       $.each(permissions.view, function (index, value) {
-        elements.permissionsForm.find('#permission_' + value).val(value + '_1');
+        permissionState[value] = value + '_1';
       });
 
+      syncSelectsFromState();
       elements.permissionsDialog.modal('show');
     });
   };

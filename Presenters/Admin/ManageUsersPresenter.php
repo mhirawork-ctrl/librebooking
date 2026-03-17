@@ -298,42 +298,65 @@ class ManageUsersPresenter extends ActionPresenter implements IManageUsersPresen
     public function ChangePermissions()
     {
         $currentUser = $this->userRepository->LoadById(ServiceLocator::GetServer()->GetUserSession()->UserId);
-        $resources = $this->GetResourcesThatCurrentUserCanAdminister($currentUser);
+        $currentUserManagedResources = $this->GetResourcesThatCurrentUserCanAdminister($currentUser);
 
-        $acceptableResourceIds = [];
+        $currentUserManagedResourceIds = [];
 
-        foreach ($resources as $resource) {
-            $acceptableResourceIds[] = $resource->GetId();
+        foreach ($currentUserManagedResources as $resource) {
+            $currentUserManagedResourceIds[] = (int) $resource->GetId();
         }
 
         $user = $this->userRepository->LoadById($this->page->GetUserId());
-        $allowedResources = [];
+
+        // Raw form data: each entry is "{resourceId}_{permissionType}" e.g. "1_0" for full, "2_1" for view
+        $submittedPermissions = [];
 
         if (is_array($this->page->GetAllowedResourceIds())) {
-            $allowedResources = $this->page->GetAllowedResourceIds();
+            $submittedPermissions = $this->page->GetAllowedResourceIds();
         }
 
-        $allowed = [];
-        $view = [];
-        foreach ($allowedResources as $resource) {
+        $fullAccessResourceIds = [];
+        $viewOnlyResourceIds = [];
+        foreach ($submittedPermissions as $resource) {
             $split = explode('_', $resource);
-            $resourceId = $split[0];
-            $permissionType = $split[1];
+            $resourceId = (int) $split[0];
+            $permissionType = (string) ($split[1] ?? 'none');
 
-            if ($permissionType === ResourcePermissionType::Full . '') {
-                $allowed[] = $resourceId;
-            } else {
-                if ($permissionType === ResourcePermissionType::View . '') {
-                    $view[] = $resourceId;
-                }
+            // Only allow changes to resources the current admin can administer
+            if (!in_array($resourceId, $currentUserManagedResourceIds, true)) {
+                continue;
+            }
+
+            if ($permissionType === 'none') {
+                continue;
+            }
+
+            $permissionType = (int) $permissionType;
+
+            if ($permissionType === ResourcePermissionType::Full) {
+                $fullAccessResourceIds[] = $resourceId;
+            } elseif ($permissionType === ResourcePermissionType::View) {
+                $viewOnlyResourceIds[] = $resourceId;
             }
         }
 
-        $currentResources = $user->GetAllowedResourceIds();
-        $toRemainUnchanged = array_diff($currentResources, $acceptableResourceIds);
+        // Preserve permissions on resources outside this admin's scope.
+        // The admin can only change permissions for $currentUserManagedResourceIds,
+        // so any existing permissions on other resources must be kept as-is.
+        $existingFull = $user->GetAllowedResourceIds();
+        $fullOutsideAdminScope = array_diff($existingFull, $currentUserManagedResourceIds);
 
-        $user->ChangeAllowedPermissions(array_merge($toRemainUnchanged, $allowed));
-        $user->ChangeViewPermissions(array_merge($toRemainUnchanged, $view));
+        $existingView = $user->GetAllowedViewResourceIds();
+        $viewOutsideAdminScope = array_diff($existingView, $currentUserManagedResourceIds);
+
+        // Build the complete new permission list by combining:
+        // 1. Permissions outside this admin's scope (unchanged)
+        // 2. Permissions the admin just submitted for resources they can manage
+        // The domain method (ChangeAllowedPermissions/ChangeViewPermissions) then
+        // diffs against current state to determine what was actually added/removed.
+        $user->ChangeAllowedPermissions(array_unique(array_merge($fullOutsideAdminScope, $fullAccessResourceIds)));
+        $user->ChangeViewPermissions(array_unique(array_merge($viewOutsideAdminScope, $viewOnlyResourceIds)));
+
         $this->userRepository->Update($user);
     }
 

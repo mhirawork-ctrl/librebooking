@@ -2,6 +2,7 @@ function GroupManagement(opt) {
   var options = opt;
   var activeId = null;
   var allUserList = null;
+  var permissionState = {};
 
   var elements = {
     groupList: $('#groupList'),
@@ -106,17 +107,26 @@ function GroupManagement(opt) {
     //ressource selection
     elements.checkAllResourcesFull.click((e) => {
       e.preventDefault();
-      elements.permissionsDialog.find('.full').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_0';
+      }
+      syncSelectsFromState();
     });
 
     elements.checkAllResourcesView.click((e) => {
       e.preventDefault();
-      elements.permissionsDialog.find('.view').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_1';
+      }
+      syncSelectsFromState();
     });
 
     elements.checkNoResources.click((e) => {
       e.preventDefault();
-      elements.permissionsDialog.find('.none').prop('selected', true);
+      for (var rid in permissionState) {
+        permissionState[rid] = rid + '_none';
+      }
+      syncSelectsFromState();
     });
 
     //group role
@@ -158,9 +168,25 @@ function GroupManagement(opt) {
   };
 
   var configureAsyncForms = function () {
+    var cleanupPermissionsForm = function () {
+      elements.permissionsForm.find('select.resourceId').attr('name', 'resourceId[]');
+      elements.permissionsForm.find('.injected-permission').remove();
+    };
+
     var hidePermissionsDialog = function () {
       elements.permissionsDialog.modal('hide');
     };
+
+    elements.permissionsDialog.on('hidden.bs.modal', cleanupPermissionsForm);
+
+    elements.permissionsForm.on('change', 'select.resourceId', function () {
+      var rid = $(this).attr('id').replace('permission_', '');
+      permissionState[rid] = $(this).val();
+    });
+
+    $('#permissionsDialogtable').on('draw.dt', function () {
+      syncSelectsFromState();
+    });
 
     var error = function (errorText) {
       alert(errorText);
@@ -183,11 +209,25 @@ function GroupManagement(opt) {
 
     ConfigureAsyncForm(elements.addUserForm, getSubmitCallback(options.actions.addUser), changeMembers, error);
     ConfigureAsyncForm(elements.removeUserForm, getSubmitCallback(options.actions.removeUser), changeMembers, error);
+    var permissionsBeforeSerialize = function (jqForm) {
+      jqForm.find('.injected-permission').remove();
+      for (var rid in permissionState) {
+        var val = permissionState[rid];
+        if (val.indexOf('_none') === -1) {
+          jqForm.append(
+            $('<input>', { type: 'hidden', class: 'injected-permission', name: 'resourceId[]', value: val })
+          );
+        }
+      }
+      jqForm.find('select.resourceId').attr('name', '');
+    };
+
     ConfigureAsyncForm(
       elements.permissionsForm,
       getSubmitCallback(options.actions.permissions),
       hidePermissionsDialog,
-      error
+      error,
+      { onBeforeSerialize: permissionsBeforeSerialize }
     );
     ConfigureAsyncForm(elements.editGroupForm, getSubmitCallback(options.actions.updateGroup), null, error);
     ConfigureAsyncForm(elements.deleteGroupForm, getSubmitCallback(options.actions.deleteGroup), null, error);
@@ -310,19 +350,42 @@ function GroupManagement(opt) {
     elements.browseUserDialog.modal('show');
   };
 
+  var syncSelectsFromState = function () {
+    var table = $('#permissionsDialogtable').DataTable();
+    table.rows({ page: 'current' }).every(function () {
+      var select = $(this.node()).find('select.resourceId');
+      if (select.length) {
+        var rid = select.attr('id').replace('permission_', '');
+        if (permissionState[rid] !== undefined) {
+          select.val(permissionState[rid]);
+        }
+      }
+    });
+  };
+
   //change group ressource permission
   var changePermissions = function () {
     $.get(options.permissionsUrl, { dr: options.dataRequests.permissions, gid: activeId }, (permissions) => {
-      elements.permissionsForm.find('.none').prop('selected', true);
+      permissionState = {};
+
+      var table = $('#permissionsDialogtable').DataTable();
+      table.rows({ search: 'none' }).every(function () {
+        var select = $(this.node()).find('select.resourceId');
+        if (select.length) {
+          var rid = select.attr('id').replace('permission_', '');
+          permissionState[rid] = rid + '_none';
+        }
+      });
 
       (permissions.full || []).forEach((id) => {
-        elements.permissionsForm.find(`#permission_${id}`).val(`${id}_0`);
+        permissionState[id] = id + '_0';
       });
 
       (permissions.view || []).forEach((id) => {
-        elements.permissionsForm.find(`#permission_${id}`).val(`${id}_1`);
+        permissionState[id] = id + '_1';
       });
 
+      syncSelectsFromState();
       elements.permissionsDialog.modal('show');
     });
   };

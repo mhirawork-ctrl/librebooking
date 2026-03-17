@@ -125,30 +125,36 @@ class ManageGroupsPresenter extends ActionPresenter
     public function ChangePermissions()
     {
         $group = $this->groupRepository->LoadById($this->page->GetGroupId());
-        $resources = [];
-        $allowed = [];
-        $view = [];
+        $fullAccessResourceIds = [];
+        $viewOnlyResourceIds = [];
+
+        // Raw form data: each entry is "{resourceId}_{permissionType}" e.g. "1_0" for full, "2_1" for view
+        $submittedPermissions = [];
 
         if (is_array($this->page->GetAllowedResourceIds())) {
-            $resources = $this->page->GetAllowedResourceIds();
+            $submittedPermissions = $this->page->GetAllowedResourceIds();
         }
 
-        foreach ($resources as $resource) {
+        foreach ($submittedPermissions as $resource) {
             $split = explode('_', $resource);
-            $resourceId = $split[0];
-            $permissionType = $split[1];
+            $resourceId = (int) $split[0];
+            $permissionType = (string) ($split[1] ?? 'none');
 
-            if ($permissionType === ResourcePermissionType::Full . '') {
-                $allowed[] = $resourceId;
-            } else {
-                if ($permissionType === ResourcePermissionType::View . '') {
-                    $view[] = $resourceId;
-                }
+            if ($permissionType === 'none') {
+                continue;
+            }
+
+            $permissionType = (int) $permissionType;
+
+            if ($permissionType === ResourcePermissionType::Full) {
+                $fullAccessResourceIds[] = $resourceId;
+            } elseif ($permissionType === ResourcePermissionType::View) {
+                $viewOnlyResourceIds[] = $resourceId;
             }
         }
 
-        $group->ChangeViewPermissions($view);
-        $group->ChangeAllowedPermissions($allowed);
+        $group->ChangeViewPermissions($viewOnlyResourceIds);
+        $group->ChangeAllowedPermissions($fullAccessResourceIds);
         $this->groupRepository->Update($group);
     }
 
