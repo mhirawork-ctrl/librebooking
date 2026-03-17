@@ -225,7 +225,26 @@ class ReservationSavePage extends SecurePage implements IReservationSavePage
 
     public function GetTitle()
     {
-        return $this->GetForm(FormKeys::RESERVATION_TITLE);
+        $purpose = trim((string)$this->GetForm(FormKeys::RESERVATION_PURPOSE));
+        $contactName = trim((string)$this->GetForm(FormKeys::RESERVATION_CONTACT_NAME));
+        $extension = trim((string)$this->GetForm(FormKeys::RESERVATION_CONTACT_EXTENSION));
+
+        if ($purpose === '' && $contactName === '' && $extension === '') {
+            return $this->GetForm(FormKeys::RESERVATION_TITLE);
+        }
+
+        $parts = [];
+        if ($purpose !== '') {
+            $parts[] = $purpose;
+        }
+        if ($contactName !== '') {
+            $parts[] = $contactName;
+        }
+        if ($extension !== '') {
+            $parts[] = sprintf('内線%s', $extension);
+        }
+
+        return implode('｜', $parts);
     }
 
     public function GetDescription()

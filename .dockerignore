@@ -1,0 +1,12 @@
+.env
+.git
+.github
+.phpunit.cache
+.vscode
+Dockerfile
+LibreBooking.code-workspace
+LibreBooking.sublime-project
+node_modules
+vendor
+dev-data
+tmp

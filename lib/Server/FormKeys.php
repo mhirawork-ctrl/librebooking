@@ -187,7 +187,10 @@ class FormKeys
     public const REFERENCE_NUMBER = 'referenceNumber';
     public const REFUND_AMOUNT = 'REFUND_AMOUNT';
     public const REFUND_TRANSACTION_ID = 'REFUND_TRANSACTION_ID';
+    public const RESERVATION_CONTACT_EXTENSION = 'reservationContactExtension';
+    public const RESERVATION_CONTACT_NAME = 'reservationContactName';
     public const REMOVED_FILE_IDS = 'removeFile';
+    public const RESERVATION_PURPOSE = 'reservationPurpose';
     public const REPEAT_OPTIONS = 'repeatOptions';
     public const REPEAT_EVERY = 'repeatEvery';
     public const REPEAT_SUNDAY = 'repeatSunday';

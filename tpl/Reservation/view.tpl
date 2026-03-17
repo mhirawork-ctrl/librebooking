@@ -28,7 +28,7 @@
 
                 <div id="reservationDetails" class="{$detailsCol}">
                     <div class="col-12">
-                        <label class="fw-bold">{translate key='User'}</label>
+                        <label class="fw-bold">{translate key='Owner'}</label>
                         {if $ShowUserDetails && $ShowReservationDetails && $isResourcePermitted}
                             <a href="#" class="bindableUser link-primary" data-userid="{$UserId}">{$ReservationUserName}</a>
                             <input id="userId" type="hidden" value="{$UserId}" />
@@ -280,6 +280,24 @@
                             {/block}
 
                             {block name="submitButtons"}
+                                {if $IsEditable}
+                                    <a href="reservation.php?{QueryStringKeys::REFERENCE_NUMBER}={$ReferenceNumber}&update=1"
+                                        class="btn btn-primary">
+                                        <i class="bi bi-pencil-square"></i>
+                                        編集
+                                    </a>
+                                    {if $IsRecurring}
+                                        <button type="button" class="btn btn-outline-danger delete prompt">
+                                            <i class="bi bi-x-circle"></i>
+                                            取り消し
+                                        </button>
+                                    {else}
+                                        <button type="button" class="btn btn-outline-danger triggerDeletePrompt delete prompt-single">
+                                            <i class="bi bi-x-circle"></i>
+                                            取り消し
+                                        </button>
+                                    {/if}
+                                {/if}
                                 {if $CheckInRequired && (!$checkinAdminOnly || $CanViewAdmin)}
                                     <button type="button" class="btn btn-warning btnCheckin"><i
                                             class="bi bi-box-arrow-in-right"></i>
@@ -345,6 +363,63 @@
             </div>
         </div>
     </div>
+
+    {if $IsEditable}
+        {if $IsRecurring}
+            <div class="modal fade" id="updateButtons" tabindex="-1" role="dialog" aria-labelledby="updateButtonsLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="updateButtonsLabel">{translate key=ApplyUpdatesTo}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="deleteRecurringButtons" class="mb-3">
+                                <div>{translate key=DeleteReminderWarning}</div>
+                            </div>
+
+                            <div class="d-grid gap-2 d-sm-block">
+                                <button type="button" class="btn btn-danger save btnUpdateThisInstance">
+                                    <span class="bi bi-x-lg"></span>
+                                    {translate key='ThisInstance'}
+                                </button>
+                                <button type="button" class="btn btn-danger save btnUpdateAllInstances">
+                                    <span class="bi bi-x-square-fill"></span>
+                                    {translate key='AllInstances'}
+                                </button>
+                                <button type="button" class="btn btn-danger save btnUpdateFutureInstances">
+                                    <span class="bi bi-x-octagon"></span>
+                                    {translate key='FutureInstances'}
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    {translate key='Cancel'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {else}
+            <div id="deleteButtonPrompt" class="modal fade">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">{translate key=Delete}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div>{translate key=DeleteReminderWarning}</div>
+                        </div>
+                        <div class="modal-footer">
+                            {cancel_button class="cancelDelete cancel"}
+                            {delete_button class="confirmDelete delete save"}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {/if}
+    {/if}
 
     <div style="display: none">
         <form id="form-reservation" method="post" enctype="application/x-www-form-urlencoded">

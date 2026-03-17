@@ -257,7 +257,9 @@ class UserRepository implements IUserRepository, IAccountActivationRepository
                 $row[ColumnNames::TIMEZONE_NAME],
                 $row[ColumnNames::LANGUAGE_CODE],
                 $preferences,
-                $creditCount
+                $creditCount,
+                $row[ColumnNames::USERNAME] ?? null,
+                $row[ColumnNames::PHONE_NUMBER] ?? null
             );
         }
 
@@ -288,7 +290,9 @@ class UserRepository implements IUserRepository, IAccountActivationRepository
                 $row[ColumnNames::TIMEZONE_NAME],
                 $row[ColumnNames::LANGUAGE_CODE],
                 null,
-                $row[ColumnNames::CREDIT_COUNT]
+                $row[ColumnNames::CREDIT_COUNT],
+                $row[ColumnNames::USERNAME] ?? null,
+                $row[ColumnNames::PHONE_NUMBER] ?? null
             );
 
             $this->_cache->Add($userId . 'dto', $user);
@@ -833,6 +837,8 @@ class UserRepository implements IUserRepository, IAccountActivationRepository
 class UserDto
 {
     public $UserId;
+    public $Username;
+    public $Phone;
     public $FirstName;
     public $LastName;
     public $FullName;
@@ -850,9 +856,13 @@ class UserDto
         $timezone = null,
         $languageCode = null,
         $preferences = null,
-        $currentCreditCount = null
+        $currentCreditCount = null,
+        $username = null,
+        $phone = null
     ) {
         $this->UserId = $userId;
+        $this->Username = $username;
+        $this->Phone = $phone;
         $this->FirstName = $firstName;
         $this->LastName = $lastName;
         $this->EmailAddress = $emailAddress;
@@ -867,6 +877,16 @@ class UserDto
     public function Id()
     {
         return $this->UserId;
+    }
+
+    public function Username()
+    {
+        return $this->Username;
+    }
+
+    public function Phone()
+    {
+        return $this->Phone;
     }
 
     public function FirstName()

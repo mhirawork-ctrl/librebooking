@@ -148,7 +148,7 @@ class ReservationUserBinder implements IReservationComponentBinder
 
         $initializer->ShowUserDetails(!$hideUser || $currentUser->IsAdmin || $userId == $currentUser->UserId);
         $initializer->ShowReservationDetails(true);
-        $initializer->SetShowParticipation(!$hideUser || $currentUser->IsAdmin || $currentUser->IsGroupAdmin);
+        $initializer->SetShowParticipation(false);
     }
 }
 

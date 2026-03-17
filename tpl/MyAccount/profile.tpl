@@ -17,15 +17,11 @@
 
                 <div class="validationSummary alert alert-danger d-none" id="validationErrors">
                     <ul>
-                        {async_validator id="fname" key="FirstNameRequired"}
-                        {async_validator id="lname" key="LastNameRequired"}
                         {async_validator id="username" key="UserNameRequired"}
                         {async_validator id="emailformat" key="ValidEmailRequired"}
                         {async_validator id="uniqueemail" key="UniqueEmailRequired"}
                         {async_validator id="uniqueusername" key="UniqueUsernameRequired"}
                         {async_validator id="phoneRequired" key="PhoneRequired"}
-                        {async_validator id="positionRequired" key="PositionRequired"}
-                        {async_validator id="organizationRequired" key="OrganizationRequired"}
                         {async_validator id="additionalattributes" key=""}
                     </ul>
                 </div>
@@ -57,29 +53,8 @@
                         </div>
                     </div>
 
-                    <div class="col-12 col-sm-6">
-                        <div class="form-group">
-                            <label class="reg fw-bold" for="fname">{translate key="FirstName"}</label>
-                            {if $AllowNameChange}
-                                {textbox name="FIRST_NAME" class="input" value="FirstName" required="required" data-bv-notempty="true" data-bv-notempty-message="{translate key=FirstNameRequired}"}
-                            {else}
-                                <span>{$FirstName}</span>
-                                <input type="hidden" {formname key=FIRST_NAME} value="{$FirstName}" />
-                            {/if}
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-sm-6">
-                        <div class="form-group">
-                            <label class="reg fw-bold" for="lname">{translate key="LastName"}</label>
-                            {if $AllowNameChange} {$Language}
-                                {textbox name="LAST_NAME" class="input" value="LastName" required="required" data-bv-notempty="true" data-bv-notempty-message="{translate key=LastNameRequired}"}
-                            {else}
-                                <span>{$LastName}</span>
-                                <input type="hidden" {formname key=LAST_NAME} value="{$LastName}" />
-                            {/if}
-                        </div>
-                    </div>
+                    <input type="hidden" {formname key=FIRST_NAME} value="{$FirstName}" />
+                    <input type="hidden" {formname key=LAST_NAME} value="{$LastName}" />
 
                     <div class="col-12 col-sm-6">
                         <div class="form-group">
@@ -101,46 +76,21 @@
 
                     <div class="col-12 col-sm-6">
                         <div class="form-group">
-                            <label class="reg fw-bold" for="phone">{translate key="Phone"}</label>
+                            <label class="reg fw-bold" for="phone">電話番号（内線）</label>
                             {if $AllowPhoneChange}
-                                <input type="text" id="phone" {formname key="PHONE"} class="form-control" size="20"
-                                    value="{$Phone}" {if $RequirePhone}required="required" data-bv-notempty="true"
-                                    data-bv-notempty-message="{translate key=PhoneRequired}" {/if} />
+                                <textarea id="phone" {formname key="PHONE"} class="form-control" rows="4"
+                                    {if $RequirePhone}required="required" data-bv-notempty="true"
+                                    data-bv-notempty-message="{translate key=PhoneRequired}" {/if}>{$Phone}</textarea>
+                                <div class="form-text">複数ある場合は改行またはカンマ区切りで入力してください。予約フォームでは候補から選べます。</div>
                             {else}
-                                <span>{$Phone}</span>
+                                <span>{$Phone|nl2br}</span>
                                 <input type="hidden" {formname key=PHONE} value="{$Phone}" />
                             {/if}
                         </div>
                     </div>
 
-                    <div class="col-12 col-sm-6">
-                        <div class="form-group">
-                            <label class="reg fw-bold" for="txtOrganization">{translate key="Organization"}</label>
-                            {if $AllowOrganizationChange}
-                                <input type="text" id="txtOrganization" {formname key="ORGANIZATION"} class="form-control"
-                                    size="20" value="{$Organization}" {if $RequireOrganization}required="required"
-                                        data-bv-notempty="true" data-bv-notempty-message="{translate key=OrganizationRequired}"
-                                    {/if} />
-                            {else}
-                                <span>{$Organization}</span>
-                                <input type="hidden" {formname key=ORGANIZATION} value="{$Organization}" />
-                            {/if}
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-sm-6">
-                        <div class="form-group">
-                            <label class="reg fw-bold" for="txtPosition">{translate key="Position"}</label>
-                            {if $AllowPositionChange}
-                                <input type="text" id="txtPosition" {formname key="POSITION"} class="form-control" size="20"
-                                    value="{$Position}" {if $RequirePosition}required="required" data-bv-notempty="true"
-                                    data-bv-notempty-message="{translate key=PositionRequired}" {/if} />
-                            {else}
-                                <span>{$Position}</span>
-                                <input type="hidden" {formname key=POSITION} value="{$Position}" />
-                            {/if}
-                        </div>
-                    </div>
+                    <input type="hidden" {formname key=ORGANIZATION} value="{$Organization}" />
+                    <input type="hidden" {formname key=POSITION} value="{$Position}" />
 
                     {foreach from=$Attributes item=attribute}
 		                <div class="col-12 col-sm-6">
@@ -159,7 +109,7 @@
             {csrf_token}
         </form>
     </div>
-    {setfocus key='FIRST_NAME'}
+    {setfocus key='USERNAME'}
 
     {include file="javascript-includes.tpl" Validator=true}
     {jsfile src="ajax-helpers.js"}
@@ -195,7 +145,6 @@
 
             profileForm.bootstrapValidator();
 
-            $('#txtOrganization').orgAutoComplete("ajax/autocomplete.php?type={AutoCompleteType::Organization}");
         });
     </script>
 

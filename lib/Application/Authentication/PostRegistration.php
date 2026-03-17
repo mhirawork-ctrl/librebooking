@@ -25,7 +25,7 @@ class PostRegistration implements IPostRegistration
         if ($user->StatusId() == AccountStatus::ACTIVE) {
             Log::Debug('PostRegistration - Handling activate user %s', $user->EmailAddress());
             $this->authentication->Login($user->EmailAddress(), $loginContext);
-            $page->Redirect(Pages::UrlFromId($user->Homepage()));
+            $page->Redirect(Pages::HomeUrlFromId($user->Homepage()));
         } else {
             Log::Debug('PostRegistration - Handling pending user %s', $user->EmailAddress());
             $this->activation->Notify($user);

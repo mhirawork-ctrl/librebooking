@@ -15,7 +15,7 @@
         <div class="reserved {$class} {$OwnershipClass} clickres" resid="{$Slot->Id()}" {$color}
             id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}">
             {$DisplaySlotFactory->GetCondensedPeriodLabel($Periods, $Slot->BeginDate(), $Slot->EndDate())}
-            {$Slot->Label($SlotLabelFactory)|escapequotes}</div>
+            {$Slot->Label($SlotLabelFactory) nofilter}</div>
     {/function}
 
     {function name=displayAdminReservedCondensed}
@@ -46,7 +46,7 @@
     {function name=displayUnreservableCondensed}
         <div class="unreservable" resid="{$Slot->Id()}" {$color} id="{$Slot->Id()}|{$Slot->Date()->Format('Ymd')}">
             {formatdate date=$Slot->BeginDate() key=period_time} - {formatdate date=$Slot->EndDate() key=period_time}
-            {$Slot->Label($SlotLabelFactory)|escapequotes}</div>
+            {$Slot->Label($SlotLabelFactory) nofilter}</div>
     {/function}
 
     {function name=displaySlotCondensed}

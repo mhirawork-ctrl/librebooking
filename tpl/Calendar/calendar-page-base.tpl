@@ -1,14 +1,35 @@
 {include file='globalheader.tpl' Select2=true Fullcalendar=true cssFiles='assets/vendor/jqtree/1.6.2/css/jqtree.css,css/schedule.css' printCssFiles='css/calendar.print.css'}
 
 <div id="page-{$pageIdSuffix}">
-    {include file='Calendar/calendar.filter.tpl'}
+    <div class="calendar-workspace">
+        {include file='Calendar/calendar.filter.tpl'}
 
-    <div id="subscriptionContainer">
-        {include file="Calendar/{$subscriptionTpl}" IsSubscriptionAllowed=$IsSubscriptionAllowed
-        IsSubscriptionEnabled=$IsSubscriptionEnabled SubscriptionUrl=$SubscriptionUrl}
+        <div id="subscriptionContainer" class="calendar-subscription">
+            {include file="Calendar/{$subscriptionTpl}" IsSubscriptionAllowed=$IsSubscriptionAllowed
+            IsSubscriptionEnabled=$IsSubscriptionEnabled SubscriptionUrl=$SubscriptionUrl}
+        </div>
     </div>
 
-    <div id="calendar" class="mt-4"></div>
+    <div class="calendar-shell">
+        <div class="calendar-shell__tip">
+            日付をクリックすると、その日の詳細確認や予約作成に進めます。
+        </div>
+        <div id="calendar" class="mt-4"></div>
+
+        <div class="calendar-digest">
+            <div class="calendar-digest__header">
+                <div class="calendar-digest__intro">
+                    <div class="calendar-digest__eyebrow">Monthly Digest</div>
+                    <div class="calendar-digest__title" id="calendarDigestTitle">この表示範囲の予約一覧</div>
+                    <div class="calendar-digest__hint">月間カレンダーで見えている予約を、時系列でまとめて確認できます。</div>
+                </div>
+                <div class="calendar-digest__count" id="calendarDigestCount">0件</div>
+            </div>
+            <div class="calendar-digest__list" id="calendarDigestList">
+                <div class="calendar-digest__empty">予約を読み込み中です。</div>
+            </div>
+        </div>
+    </div>
 
     <div id="dayDialog" class="card shadow bg-secondary-subtle position-absolute d-none p-0" style="z-index: 2000;">
         <div class="card-body">

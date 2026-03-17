@@ -16,6 +16,213 @@ function Calendar(opts) {
   };
 
   Calendar.prototype.init = function () {
+    function getSelectedFilterText() {
+      var selectedText = $('#calendarFilter option:selected').text().trim();
+      if (!_.isEmpty(selectedText)) {
+        return selectedText;
+      }
+
+      var groupText = $('.groupName').first().text().trim();
+      if (!_.isEmpty(groupText)) {
+        return groupText;
+      }
+
+      return '全会議室';
+    }
+
+    function currentCalendarDate() {
+      if (_fullCalendar) {
+        return _fullCalendar.fullCalendar('getDate');
+      }
+
+      return _options.defaultDate;
+    }
+
+    function normalizedCurrentDate() {
+      return moment(currentCalendarDate()).format('YYYY-M-D');
+    }
+
+    function escapeHtml(value) {
+      return $('<div/>').text(value || '').html();
+    }
+
+    function plainTextReservationTitle(value) {
+      if (_.isEmpty(value)) {
+        return '';
+      }
+
+      var normalized = String(value)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/span>\s*<span[^>]*>/gi, '\n');
+      var decoded = $('<div/>').html(normalized).text();
+
+      return decoded.replace(/\s*\n\s*/g, ' / ').replace(/\s+/g, ' ').trim();
+    }
+
+    function currentViewTitle(view) {
+      if (view && view.title) {
+        return view.title;
+      }
+
+      return $('#calendar .fc-center h2').text().trim();
+    }
+
+    function buildViewRedirect(view) {
+      var redirectDate = currentCalendarDate();
+
+      if (view && view.start) {
+        redirectDate = view.type == 'month' && view.currentRange ? view.currentRange.start : view.start;
+      }
+
+      return (
+        _options.returnTo +
+        encodeURIComponent(
+          '?ct=' +
+            (view ? view.name : _options.view) +
+            '&start=' +
+            redirectDate.year() +
+            '-' +
+            (redirectDate.month() + 1) +
+            '-' +
+            redirectDate.date()
+        )
+      );
+    }
+
+    function getEventHref(event, view) {
+      if (_.isEmpty(event.id) || _.isEmpty(event.url)) {
+        return '#';
+      }
+
+      return event.url.replace('[redirect]', buildViewRedirect(view));
+    }
+
+    function renderCalendarDigest(view) {
+      var digestList = $('#calendarDigestList');
+
+      if (digestList.length === 0) {
+        return;
+      }
+
+      var digestEvents = _fullCalendar
+        ? _fullCalendar.fullCalendar('clientEvents', function (event) {
+            return !_.isEmpty(event.id);
+          })
+        : [];
+
+      digestEvents.sort(function (left, right) {
+        return moment(left.start).valueOf() - moment(right.start).valueOf();
+      });
+
+      $('#calendarDigestTitle').text((currentViewTitle(view) || 'この表示範囲') + 'の予約一覧');
+      $('#calendarDigestCount').text(digestEvents.length + '件');
+
+      if (digestEvents.length === 0) {
+        digestList.html('<div class="calendar-digest__empty">この表示範囲に予約はありません。</div>');
+        return;
+      }
+
+      var html = _.map(digestEvents.slice(0, 10), function (event) {
+        var start = moment(event.start);
+        var end = moment(event.end);
+        var dateLabel = start.format('M/D') + ' ' + _options.dayNamesShort[start.day()];
+        var timeLabel = start.format('H:mm') + ' - ' + end.format('H:mm');
+        var title = plainTextReservationTitle(event.title);
+        if (_.isEmpty(title)) {
+          title = '予定';
+        }
+
+        return (
+          '<a class="calendar-digest__item" href="' +
+          escapeHtml(getEventHref(event, view)) +
+          '">' +
+          '<span class="calendar-digest__date">' +
+          escapeHtml(dateLabel) +
+          '</span>' +
+          '<span class="calendar-digest__time">' +
+          escapeHtml(timeLabel) +
+          '</span>' +
+          '<span class="calendar-digest__name">' +
+          escapeHtml(title) +
+          '</span>' +
+          '</a>'
+        );
+      }).join('');
+
+      if (digestEvents.length > 10) {
+        html +=
+          '<div class="calendar-digest__more">表示中の予約は ' +
+          digestEvents.length +
+          ' 件あります。詳細は月間カレンダーまたは時間割ビューで確認できます。</div>';
+      }
+
+      digestList.html(html);
+    }
+
+    function updateCalendarActions() {
+      var currentDate = normalizedCurrentDate();
+      var sid = _options.eventsData.sid || '';
+      var rid = _options.eventsData.rid || '';
+      var gid = _options.eventsData.gid || '';
+      var scheduleLink = $('#calendarOpenSchedule');
+      var createShortcut = $('#calendarCreateShortcut');
+      var params = [];
+
+      if (!_.isEmpty(sid)) {
+        params.push('sid=' + encodeURIComponent(sid));
+      }
+
+      if (!_.isEmpty(rid)) {
+        params.push('rid=' + encodeURIComponent(rid));
+      }
+
+      if (!_.isEmpty(gid)) {
+        params.push('gid=' + encodeURIComponent(gid));
+      }
+
+      if (!_.isEmpty(currentDate)) {
+        params.push('sd=' + encodeURIComponent(currentDate));
+      }
+
+      scheduleLink.attr('href', 'schedule.php' + (params.length > 0 ? '?' + params.join('&') : ''));
+
+      if (!_.isEmpty(rid)) {
+        createShortcut
+          .attr(
+            'href',
+            _options.reservationUrl +
+              '&sd=' +
+              encodeURIComponent(currentDate) +
+              '&ed=' +
+              encodeURIComponent(currentDate)
+          )
+          .removeClass('calendar-filter__action--disabled')
+          .attr('aria-disabled', 'false')
+          .text('この会議室で新規予約');
+      } else {
+        createShortcut
+          .attr('href', '#')
+          .addClass('calendar-filter__action--disabled')
+          .attr('aria-disabled', 'true')
+          .text('会議室を選ぶと直接予約できます');
+      }
+    }
+
+    function updateCalendarSummary(view) {
+      $('#calendarCurrentTarget').text(getSelectedFilterText());
+      $('#calendarCurrentRange').text(currentViewTitle(view) || '月間表示');
+
+      var visibleEvents = _fullCalendar
+        ? _fullCalendar.fullCalendar('clientEvents', function (event) {
+            return !_.isEmpty(event.id);
+          })
+        : [];
+      $('#calendarVisibleCount').text(visibleEvents.length + '件');
+
+      updateCalendarActions();
+      renderCalendarDigest(view);
+    }
+
     function showLoadingIndicator() {
       elements.loadingIndicator.removeClass('d-none');
     }
@@ -50,16 +257,9 @@ function Calendar(opts) {
       eventRender: function (event, element, view) {
         if (!_.isEmpty(event.id)) {
           element.attachReservationPopup(event.id);
-          var moment = view.start;
-          if (view.type == 'month') {
-            moment = view.currentRange.start;
-          }
-          var redirect =
-            _options.returnTo +
-            encodeURIComponent(
-              '?ct=' + view.name + '&start=' + moment.year() + '-' + (moment.month() + 1) + '-' + moment.date()
-            );
-          element.attr('href', event.url.replace('[redirect]', redirect));
+          element.addClass('calendar-event-card');
+          element.attr('href', getEventHref(event, view));
+          element.attr('title', plainTextReservationTitle(event.title || ''));
         }
       },
       dayClick: dayClick,
@@ -72,6 +272,12 @@ function Calendar(opts) {
       views: {
         agendaDay: { slotLabelFormat: _options.timeFormat },
         agendaWeek: { slotLabelFormat: _options.timeFormat },
+      },
+      viewRender: function (view) {
+        updateCalendarSummary(view);
+      },
+      eventAfterAllRender: function (view) {
+        updateCalendarSummary(view);
       },
       slotLabelFormat: _options.timeFormat,
       loading: function (isLoading) {
@@ -141,6 +347,12 @@ function Calendar(opts) {
       _fullCalendar.fullCalendar('refetchEvents');
 
       rebindSubscriptionData(rid, sid, gid);
+    });
+
+    $('#calendarCreateShortcut').on('click', function (e) {
+      if ($(this).hasClass('calendar-filter__action--disabled')) {
+        e.preventDefault();
+      }
     });
 
     $('#subscriptionContainer').on('click', '#turnOffSubscription', function (e) {
@@ -238,6 +450,8 @@ function Calendar(opts) {
       participantFilter.val('');
       _fullCalendar.fullCalendar('refetchEvents');
     });
+
+    updateCalendarSummary(_fullCalendar.fullCalendar('getView'));
   };
 
   Calendar.prototype.bindResourceGroups = function (resourceGroups, selectedNode) {

@@ -84,6 +84,17 @@
                 {translate key=CheckOut}</button>
         {/if}
         {if $IsRecurring}
+            <button type="button" class="btn btn-sm btn-outline-danger delete prompt">
+                <span class="bi bi-x-circle"></span>
+                取り消し
+            </button>
+        {else}
+            <button type="button" class="btn btn-sm btn-outline-danger triggerDeletePrompt delete prompt-single">
+                <span class="bi bi-x-circle"></span>
+                取り消し
+            </button>
+        {/if}
+        {if $IsRecurring}
             <button type="button" class="btn btn-sm btn-primary update prompt">
                 <span class="bi bi-check-circle"></span>
                 {translate key='Update'}
@@ -99,10 +110,6 @@
                         <div class="modal-body">
                             <div id="deleteRecurringButtons" class="d-none mb-3">
                                 <div>{translate key=DeleteReminderWarning}</div>
-                                <div>
-                                    <label for="deleteReasonRecurring">{translate key=Reason} ({translate key=Optional})</label>
-                                    <textarea id="deleteReasonRecurring" class="form-control"></textarea>
-                                </div>
                             </div>
 
                             <div class="d-grid gap-2 d-sm-block">
@@ -144,11 +151,6 @@
                     </div>
                     <div class="modal-body">
                         <div>{translate key=DeleteReminderWarning}</div>
-                        <div>
-                            <label class="fw-bold" for="deleteReason">{translate key=Reason}
-                                ({translate key=Optional})</label>
-                            <textarea class="deleteReason form-control"></textarea>
-                        </div>
                     </div>
                     <div class="modal-footer">
                         {cancel_button class="cancelDelete cancel"}
@@ -176,36 +178,31 @@
                     <input style='display: none;' type="checkbox" name="{FormKeys::REMOVED_FILE_IDS}[{$attachment->FileId()}]" />
                 {/foreach}
             </div>
-            <div class="modal-body">
-                <div>{translate key=DeleteReminderWarning}</div>
-                <div>
-                    <label for="deleteReason">{translate key=Reason} ({translate key=Optional})</label>
-                    <textarea id="deleteReason" class="deleteReason form-control"></textarea>
-                {/if}
-            {/block}
+        {/if}
+    {/block}
 
-            {block name=extras}
-                {if $AutoReleaseMinutes != null}
-                    <input type="hidden" id="autoReleaseMinutes" value="{$AutoReleaseMinutes}" />
-                {/if}
+    {block name=extras}
+        {if $AutoReleaseMinutes != null}
+            <input type="hidden" id="autoReleaseMinutes" value="{$AutoReleaseMinutes}" />
+        {/if}
 
-                <div class="modal fade" id="emailReservationPrompt" tabindex="-1" role="dialog"
-                    aria-labelledby="emailReservationLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <form id="emailReservationForm" method="post" role="form" onkeypress="return event.keyCode != 13;">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="emailReservationLabel">{translate key=EmailReservation}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-hidden="true"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="form-group">
-                                        <label for="emailUserAutocomplete"
-                                            class="visually-hidden">{translate key=User}</label>
-                                        <input type="search" id="emailUserAutocomplete" name="email" class="form-control"
-                                            placeholder="{translate key=Email}" autofocus="autofocus" />
-                                    </div>
+        <div class="modal fade" id="emailReservationPrompt" tabindex="-1" role="dialog"
+            aria-labelledby="emailReservationLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form id="emailReservationForm" method="post" role="form" onkeypress="return event.keyCode != 13;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="emailReservationLabel">{translate key=EmailReservation}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-hidden="true"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="emailUserAutocomplete"
+                                    class="visually-hidden">{translate key=User}</label>
+                                <input type="search" id="emailUserAutocomplete" name="email" class="form-control"
+                                    placeholder="{translate key=Email}" autofocus="autofocus" />
+                            </div>
 
                                     <div id="emailReservationList">
 

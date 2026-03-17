@@ -109,6 +109,8 @@ class WebAuthentication implements IWebAuthentication
         if ($loginContext->GetData()->Persist) {
             $this->SetLoginCookie($userSession->UserId, $userSession->LoginTime);
         }
+
+        return $userSession;
     }
 
     /**

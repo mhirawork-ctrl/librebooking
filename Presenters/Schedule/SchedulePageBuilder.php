@@ -338,7 +338,9 @@ class SchedulePageBuilder implements ISchedulePageBuilder
     public function GetResourceFilter($scheduleId, ISchedulePage $page)
     {
         $filter = new ScheduleResourceFilter();
-        if ($page->FilterSubmitted()) {
+        if ($page->IsHomeOverviewRequest()) {
+            $filter = new ScheduleResourceFilter();
+        } elseif ($page->FilterSubmitted()) {
             if ($page->FilterCleared()) {
                 $filter = new ScheduleResourceFilter();
             } else {

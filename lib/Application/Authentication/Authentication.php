@@ -154,6 +154,7 @@ class Authentication implements IAuthentication
     private function GetUserSession(User $user, $loginTime)
     {
         $userSession = new UserSession($user->Id());
+        $userSession->Username = $user->Username();
         $userSession->Email = $user->EmailAddress();
         $userSession->FirstName = $user->FirstName();
         $userSession->LastName = $user->LastName();

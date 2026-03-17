@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${LB_DATABASE_NAME}
+      MARIADB_USER: ${LB_DATABASE_USER}
+      MARIADB_PASSWORD: ${LB_DATABASE_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mariadb-admin ping -h 127.0.0.1 -uroot -p$${MARIADB_ROOT_PASSWORD} --silent
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    volumes:
+      - lb-db-data:/var/lib/mysql
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      LB_DATABASE_HOSTSPEC: db
+    ports:
+      - ${APP_PORT:-8080}:8080
+    volumes:
+      - lb-app-config:/config
+      - lb-app-logs:/var/log/librebooking
+      - lb-app-images:/var/www/html/Web/uploads/images
+      - lb-app-reservations:/var/www/html/Web/uploads/reservation
+
+volumes:
+  lb-db-data:
+  lb-app-config:
+  lb-app-logs:
+  lb-app-images:
+  lb-app-reservations:

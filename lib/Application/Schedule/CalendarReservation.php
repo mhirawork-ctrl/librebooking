@@ -150,7 +150,11 @@ class CalendarReservation
 
         $res->Title = $reservation->Title;
         $res->Description = $reservation->Description;
-        $res->DisplayTitle = $factory->Format($reservation, Configuration::Instance()->GetKey(ConfigKeys::RESERVATION_LABELS_MY_CALENDAR));
+        $res->DisplayTitle = self::PlainTextDisplayTitle(
+            $factory->Format($reservation, Configuration::Instance()->GetKey(ConfigKeys::RESERVATION_LABELS_MY_CALENDAR)),
+            $reservation->Title,
+            $reservation->Description
+        );
         $res->Invited = $reservation->UserLevelId == ReservationUserLevel::INVITEE;
         $res->Participant = $reservation->UserLevelId == ReservationUserLevel::PARTICIPANT;
         $res->Owner = $reservation->UserLevelId == ReservationUserLevel::OWNER;
@@ -215,7 +219,11 @@ class CalendarReservation
             $cr->OwnerName = new FullName($reservation->FirstName, $reservation->LastName);
             $cr->OwnerFirst = $reservation->FirstName;
             $cr->OwnerLast = $reservation->LastName;
-            $cr->DisplayTitle = $factory->Format($reservation, Configuration::Instance()->GetKey(ConfigKeys::RESERVATION_LABELS_RESOURCE_CALENDAR));
+            $cr->DisplayTitle = self::PlainTextDisplayTitle(
+                $factory->Format($reservation, Configuration::Instance()->GetKey(ConfigKeys::RESERVATION_LABELS_RESOURCE_CALENDAR)),
+                $reservation->Title,
+                $reservation->Description
+            );
             $color = $reservation->GetColor();
             if (!empty($color)) {
                 $cr->Color = $reservation->GetColor() . ' !important';
@@ -279,6 +287,37 @@ class CalendarReservation
         }
 
         return 'reserved';
+    }
+
+    private static function PlainTextDisplayTitle($formattedLabel, $fallbackTitle = '', $fallbackDescription = '')
+    {
+        $label = (string)$formattedLabel;
+        if ($label !== '') {
+            $label = preg_replace('/<br\s*\/?>/i', "\n", $label);
+            $label = preg_replace('/<\/span>\s*<span[^>]*>/i', "\n", $label);
+            $label = html_entity_decode(strip_tags($label), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $label = preg_replace("/\r\n|\r/u", "\n", $label);
+            $label = preg_replace("/[ \t]+/u", ' ', $label);
+            $label = preg_replace("/\n{3,}/u", "\n\n", $label);
+            $label = trim($label);
+        }
+
+        if ($label !== '') {
+            return $label;
+        }
+
+        $parts = [];
+        $fallbackTitle = trim((string)$fallbackTitle);
+        $fallbackDescription = trim((string)$fallbackDescription);
+
+        if ($fallbackTitle !== '') {
+            $parts[] = $fallbackTitle;
+        }
+        if ($fallbackDescription !== '') {
+            $parts[] = $fallbackDescription;
+        }
+
+        return implode("\n", $parts);
     }
 
     public function AsFullCalendarEvent()

@@ -37,7 +37,7 @@ class ActivationPresenter
             if ($activationResult->Activated()) {
                 $user = $activationResult->User();
                 $this->authentication->Login($user->EmailAddress(), new WebLoginContext(new LoginData(false, $user->Language())));
-                $this->page->Redirect(Pages::UrlFromId($user->Homepage()));
+                $this->page->Redirect(Pages::HomeUrlFromId($user->Homepage()));
             } else {
                 $this->page->ShowError();
             }

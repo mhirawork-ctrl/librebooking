@@ -557,4 +557,9 @@ class ScheduleWebServiceView implements ISchedulePage
     {
         return '';
     }
+
+    public function IsHomeOverviewRequest(): bool
+    {
+        return false;
+    }
 }

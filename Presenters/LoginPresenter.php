@@ -97,7 +97,7 @@ class LoginPresenter
 
         if ($this->IsCookieLogin($loginCookie)) {
             if ($this->authentication->CookieLogin($loginCookie, new WebLoginContext(new LoginData(true)))) {
-                $this->_Redirect();
+                $this->_Redirect(ServiceLocator::GetServer()->GetUserSession());
                 return;
             }
         }
@@ -164,8 +164,8 @@ class LoginPresenter
 
         if ($isValid) {
             $context = new WebLoginContext(new LoginData($this->_page->GetPersistLogin(), $this->_page->GetSelectedLanguage()));
-            $this->authentication->Login($id, $context);
-            $this->_Redirect();
+            $userSession = $this->authentication->Login($id, $context);
+            $this->_Redirect($userSession);
         } else {
             sleep(2);
             $this->authentication->HandleLoginFailure($this->_page);
@@ -233,9 +233,9 @@ class LoginPresenter
         $this->_page->Redirect($url);
     }
 
-    private function _Redirect()
+    private function _Redirect($userSession = null)
     {
-        LoginRedirector::Redirect($this->_page);
+        LoginRedirector::Redirect($this->_page, $userSession);
     }
 
     private function IsCookieLogin($loginCookie)

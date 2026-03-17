@@ -122,16 +122,24 @@
 <body data-bs-theme='{$cssTheme}'>
 
     {if !isset($HideNavBar) || $HideNavBar == false}
-        <div class="d-flex align-items-center gap-2 m-2">
-            <a class="navbar-brand" href="{$HomeUrl}">
-                <img src="{$Path}img/{$LogoUrl}?{$Version}" alt="{$Title}" class="logo">
-            </a>
-            <div class="border-start ps-2 d-flex flex-column">
-                {if $CompanyName neq ''}
-                    <h5 class="mb-0"><a class="link-primary" href="{$CompanyUrl}">{$CompanyName}</a></h5>
-                {/if}
-                <h5 class="mb-0"><a class="link-primary" href="{$HomeUrl}">{$AppTitle}</a></h5>
+        <div class="d-flex align-items-center justify-content-between gap-3 m-2 page-header-userbar">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+                <a class="navbar-brand" href="{$HomeUrl}">
+                    <img src="{$Path}img/{$LogoUrl}?{$Version}" alt="{$Title}" class="logo">
+                </a>
+                <div class="border-start ps-2 d-flex flex-column min-w-0">
+                    {if $CompanyName neq ''}
+                        <h5 class="mb-0"><a class="link-primary" href="{$CompanyUrl}">{$CompanyName}</a></h5>
+                    {/if}
+                    <h5 class="mb-0"><a class="link-primary" href="{$HomeUrl}">{$AppTitle}</a></h5>
+                </div>
             </div>
+            {if isset($LoggedIn) && $LoggedIn && !empty($HeaderUserName)}
+                <div class="header-user-pill">
+                    <span class="header-user-pill__label">ログイン中</span>
+                    <span class="header-user-pill__name">{$HeaderUserName|escape}</span>
+                </div>
+            {/if}
         </div>
         <nav class="navbar navbar-expand-lg bg-light shadow-sm py-2 sticky-top">
             <div class="container-fluid">
@@ -144,14 +152,34 @@
                         {if isset($LoggedIn) && $LoggedIn}
                             <li class="nav-item" id="navDashboard"><a class="nav-link link-primary"
                                     href="{$Path}{Pages::DASHBOARD}">{translate key="Dashboard"}</a></li>
-                            <li class="nav-item dropdown" id="navMyAccountDropdown">
-                                <a href="#" class="nav-link  link-primary dropdown-toggle" role="button"
+                            <li class="nav-item dropdown" id="navScheduleDropdown">
+                                <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
+                                    data-bs-toggle="dropdown">機能</a>
+                                <ul class="dropdown-menu">
+                                    <li id="navBookings"><a class="dropdown-item"
+                                            href="{$Path}{Pages::SCHEDULE}?{Pages::HOME_OVERVIEW_QUERY_KEY}={Pages::HOME_OVERVIEW_QUERY_VALUE}">{translate key="Bookings"}</a>
+                                    </li>
+                                    <li id="navResourceCalendar"><a class="dropdown-item"
+                                            href="{$Path}{Pages::CALENDAR}">{translate key="ResourceCalendar"}</a></li>
+                                    <li id="navFindATime"><a class="dropdown-item"
+                                            href="{$Path}{Pages::OPENINGS}">{translate key="FindATime"}</a>
+                                    </li>
+                                    <li id="navSearchReservations"><a class="dropdown-item"
+                                            href="{$Path}{Pages::SEARCH_RESERVATIONS}">{translate key="SearchReservations"}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item" id="navProfile">
+                                <a class="nav-link link-primary" href="{$Path}{Pages::PROFILE}">{translate key="Profile"}</a>
+                            </li>
+                            <li class="nav-item" id="navPassword">
+                                <a class="nav-link link-primary"
+                                    href="{$Path}{Pages::PASSWORD}">{translate key="ChangePassword"}</a>
+                            </li>
+                            <li class="nav-item dropdown d-none" id="navMyAccountDropdown">
+                                <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
                                     data-bs-toggle="dropdown">{translate key="MyAccount"}</a>
                                 <ul class="dropdown-menu">
-                                    <li id="navProfile"><a class="dropdown-item"
-                                            href="{$Path}{Pages::PROFILE}">{translate key="Profile"}</a></li>
-                                    <li id="navPassword"><a class="dropdown-item"
-                                            href="{$Path}{Pages::PASSWORD}">{translate key="ChangePassword"}</a></li>
                                     <li id="navNotification">
                                         <a class="dropdown-item"
                                             href="{$Path}{Pages::NOTIFICATION_PREFERENCES}">{translate key="NotificationPreferences"}</a>
@@ -169,48 +197,22 @@
                                     {/if}
                                 </ul>
                             </li>
-                            <li class="nav-item dropdown" id="navScheduleDropdown">
-                                <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
-                                    data-bs-toggle="dropdown">{translate key="Schedule"}</a>
-                                <ul class="dropdown-menu">
-                                    <li id="navBookings"><a class="dropdown-item"
-                                            href="{$Path}{Pages::SCHEDULE}">{translate key="Bookings"}</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li id="navMyCalendar"><a class="dropdown-item"
-                                            href="{$Path}{Pages::MY_CALENDAR}">{translate key="MyCalendar"}</a></li>
-                                    <li id="navResourceCalendar"><a class="dropdown-item"
-                                            href="{$Path}{Pages::CALENDAR}">{translate key="ResourceCalendar"}</a></li>
-                                    <!--<li class="menuitem"><a href="#">{translate key="Current Status"}</a></li>-->
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li id="navFindATime"><a class="dropdown-item"
-                                            href="{$Path}{Pages::OPENINGS}">{translate key="FindATime"}</a>
-                                    </li>
-                                    <li id="navFindATime"><a class="dropdown-item"
-                                            href="{$Path}{Pages::SEARCH_RESERVATIONS}">{translate key="SearchReservations"}</a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item dropdown" id="navReportsDropdown">
-                                <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
-                                    data-bs-toggle="dropdown">{translate key="Check"}</a>
-                                <ul class="dropdown-menu">
-                                    <li id="CheckResources"><a class="dropdown-item"
-                                            href="{$Path}view_resources.php">{translate key=Resources}</a>
-                                    </li>
-                                    <li id="CheckSchedules"><a class="dropdown-item"
-                                            href="{$Path}view_schedules.php">{translate key=Schedules}</a>
-                                    </li>
-                                </ul>
-                            </li>
                             {if isset($CanViewAdmin) && $CanViewAdmin}
+                                <li class="nav-item dropdown" id="navReportsDropdown">
+                                    <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
+                                        data-bs-toggle="dropdown">空き状況</a>
+                                    <ul class="dropdown-menu">
+                                        <li id="CheckResources"><a class="dropdown-item"
+                                                href="{$Path}view_resources.php">{translate key=Resources}</a>
+                                        </li>
+                                        <li id="CheckSchedules"><a class="dropdown-item"
+                                                href="{$Path}view_schedules.php">{translate key=Schedules}</a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown" id="navApplicationManagementDropdown">
                                     <a href="#" class="nav-link link-primary dropdown-toggle" role="button"
-                                        data-bs-toggle="dropdown">{translate key="ApplicationManagement"}</a>
+                                        data-bs-toggle="dropdown">管理</a>
                                     <ul class="dropdown-menu">
                                         <li id="navManageReservations"><a class="dropdown-item"
                                                 href="{$Path}admin/manage_reservations.php">{translate key="ManageReservations"}</a>

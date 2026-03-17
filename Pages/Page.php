@@ -8,6 +8,7 @@ require_once(ROOT_DIR . 'Pages/Pages.php');
 require_once(ROOT_DIR . 'lib/Common/namespace.php');
 require_once(ROOT_DIR . 'lib/Server/namespace.php');
 require_once(ROOT_DIR . 'lib/Config/namespace.php');
+require_once(ROOT_DIR . 'Domain/Access/namespace.php');
 
 use Detection\MobileDetect;
 
@@ -63,7 +64,23 @@ abstract class Page implements IPage
         $this->smarty->assign('DisplayVersion', $this->GetDisplayVersion());
         $this->smarty->assign('Path', $this->path);
         $this->smarty->assign('ScriptUrl', Configuration::Instance()->GetScriptUrl());
+        $headerUserName = '';
+        if (!is_null($userSession)) {
+            if ($userSession->IsLoggedIn() && empty($userSession->Username) && !empty($userSession->UserId)) {
+                $user = (new UserRepository())->LoadById($userSession->UserId);
+                $userSession->Username = $user->Username();
+                $this->server->SetUserSession($userSession);
+            }
+            $headerUserName = $userSession->Username ?? '';
+            if (empty($headerUserName)) {
+                $headerUserName = trim(sprintf('%s %s', $userSession->FirstName ?? '', $userSession->LastName ?? ''));
+            }
+            if (empty($headerUserName)) {
+                $headerUserName = $userSession->Email ?? '';
+            }
+        }
         $this->smarty->assign('UserName', !is_null($userSession) ? $userSession->FirstName : '');
+        $this->smarty->assign('HeaderUserName', $headerUserName);
         $this->smarty->assign('DisplayWelcome', $this->DisplayWelcome());
         $this->smarty->assign('UserId', $userSession->UserId);
         $this->smarty->assign('CanViewAdmin', $userSession->IsAdmin);
@@ -82,7 +99,7 @@ abstract class Page implements IPage
         $this->smarty->assign('CssExtensionFile', Configuration::Instance()->GetKey(ConfigKeys::CSS_EXTENSION_FILE));
         $this->smarty->assign('UseLocalJquery', Configuration::Instance()->GetKey(ConfigKeys::USE_LOCAL_JS_LIBS, new BooleanConverter()));
         $this->smarty->assign('EnableConfigurationPage', Configuration::Instance()->GetKey(ConfigKeys::PAGES_CONFIGURATION_ENABLED, new BooleanConverter()));
-        $this->smarty->assign('ShowParticipation', !Configuration::Instance()->GetKey(ConfigKeys::RESERVATION_PREVENT_PARTICIPATION, new BooleanConverter()));
+        $this->smarty->assign('ShowParticipation', false);
         $this->smarty->assign('CreditsEnabled', Configuration::Instance()->GetKey(ConfigKeys::CREDITS_ENABLED, new BooleanConverter()));
         $this->smarty->assign('PaymentsEnabled', Configuration::Instance()->GetKey(ConfigKeys::CREDITS_ALLOW_PURCHASE, new BooleanConverter()));
         $this->smarty->assign('EmailEnabled', Configuration::Instance()->GetKey(ConfigKeys::EMAIL_ENABLED, new BooleanConverter()));
@@ -129,7 +146,7 @@ abstract class Page implements IPage
 
         $logoUrl = Configuration::Instance()->GetKey(ConfigKeys::HOME_URL);
         if (empty($logoUrl)) {
-            $logoUrl = $this->path . Pages::UrlFromId($userSession->HomepageId);
+            $logoUrl = $this->path . Pages::HomeUrlFromId($userSession->HomepageId);
         }
         $this->smarty->assign('HomeUrl', $logoUrl);
 

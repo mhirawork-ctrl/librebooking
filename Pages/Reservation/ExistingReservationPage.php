@@ -260,6 +260,7 @@ class ExistingReservationPage extends ReservationPage implements IExistingReserv
     public function SetIsEditable($canBeEdited)
     {
         $this->IsEditable = $canBeEdited;
+        $this->Set('IsEditable', $canBeEdited);
     }
 
     public function SetCurrentUserParticipating($amIParticipating)

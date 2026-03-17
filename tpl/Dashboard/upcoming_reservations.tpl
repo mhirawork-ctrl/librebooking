@@ -1,12 +1,12 @@
 <div class="upcomingReservationsDashboard accordion-item shadow mb-2" id="upcomingReservationsDashboard">
 	<div class="accordion-header dashboardHeader">
-		<button class="accordion-button collapsed link-primary fw-bold" type="button" data-bs-toggle="collapse"
-			data-bs-target="#UpcomingReservationsContents" aria-expanded="false"
+		<button class="accordion-button link-primary fw-bold" type="button" data-bs-toggle="collapse"
+			data-bs-target="#UpcomingReservationsContents" aria-expanded="true"
 			aria-controls="UpcomingReservationsContents">
-			{translate key="UpcomingReservations"}<span class="badge bg-primary ms-1">{$Total}</span>
+			近日中の予約<span class="badge bg-primary ms-1">{$Total}</span>
 		</button>
 	</div>
-	<div id="UpcomingReservationsContents" class="accordion-collapse collapse">
+	<div id="UpcomingReservationsContents" class="accordion-collapse collapse show">
 		<div class="accordion-body">
 			{if $Total > 0}
 				<div>

@@ -89,6 +89,7 @@ class ProfilePresenter extends ActionPresenter
         $user->ChangeCustomAttributes($this->GetAttributeValues(), false);
 
         $userSession->Email = $this->page->GetEmail();
+        $userSession->Username = $this->page->GetLoginName();
         $userSession->FirstName = $this->page->GetFirstName();
         $userSession->LastName = $this->page->GetLastName();
         $userSession->HomepageId = $this->page->GetHomepage();
@@ -120,9 +121,7 @@ class ProfilePresenter extends ActionPresenter
             return;
         }
         $userId = ServiceLocator::GetServer()->GetUserSession()->UserId;
-        $this->page->RegisterValidator('fname', new RequiredValidator($this->page->GetFirstName()));
         $this->page->RegisterValidator('username', new RequiredValidator($this->page->GetLoginName()));
-        $this->page->RegisterValidator('lname', new RequiredValidator($this->page->GetLastName()));
         $this->page->RegisterValidator('emailformat', new EmailValidator($this->page->GetEmail()));
         $this->page->RegisterValidator(
             'uniqueemail',
@@ -138,12 +137,6 @@ class ProfilePresenter extends ActionPresenter
         );
         if (Configuration::Instance()->GetKey(ConfigKeys::REGISTRATION_REQUIRE_PHONE, new BooleanConverter())) {
             $this->page->RegisterValidator('phoneRequired', new RequiredValidator($this->page->GetPhone()));
-        }
-        if (Configuration::Instance()->GetKey(ConfigKeys::REGISTRATION_REQUIRE_ORGANIZATION, new BooleanConverter())) {
-            $this->page->RegisterValidator('organizationRequired', new RequiredValidator($this->page->GetOrganization()));
-        }
-        if (Configuration::Instance()->GetKey(ConfigKeys::REGISTRATION_REQUIRE_POSITION, new BooleanConverter())) {
-            $this->page->RegisterValidator('positionRequired', new RequiredValidator($this->page->GetPosition()));
         }
     }
 

@@ -2,10 +2,13 @@
 
 class Pages
 {
+    public const HOME_OVERVIEW_QUERY_KEY = 'home_view';
+    public const HOME_OVERVIEW_QUERY_VALUE = 'overview';
+
     public const ID_DASHBOARD = 1;
     public const ID_LOGIN = 5;
 
-    public const DEFAULT_HOMEPAGE_ID = self::ID_DASHBOARD;
+    public const DEFAULT_HOMEPAGE_ID = 1;
 
     public const ACTIVATION = 'activate.php';
     public const CALENDAR = 'calendar.php';
@@ -59,6 +62,27 @@ class Pages
     public static function UrlFromId($pageId)
     {
         return self::$_pages[$pageId]['url'];
+    }
+
+    public static function HomeUrlFromId($pageId)
+    {
+        $url = self::UrlFromId($pageId);
+
+        if ($url === self::SCHEDULE) {
+            return self::ScheduleOverviewUrl();
+        }
+
+        return $url;
+    }
+
+    public static function ScheduleOverviewUrl()
+    {
+        return sprintf(
+            '%s?%s=%s',
+            self::SCHEDULE,
+            self::HOME_OVERVIEW_QUERY_KEY,
+            self::HOME_OVERVIEW_QUERY_VALUE
+        );
     }
 
     public static function NameFromId($pageId)

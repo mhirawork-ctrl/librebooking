@@ -224,6 +224,11 @@ interface ISchedulePage extends IActionPage
      * @param ReservationListItem[] $items
      */
     public function BindReservations($items);
+
+    /**
+     * @return bool
+     */
+    public function IsHomeOverviewRequest(): bool;
 }
 
 class SchedulePage extends ActionPage implements ISchedulePage
@@ -299,6 +304,7 @@ class SchedulePage extends ActionPage implements ISchedulePage
         }
 
         $authorizationService = new AuthorizationService($this->userRepository);
+        $embeddedInDashboard = $this->IsEmbeddedDashboardRequest();
 
         $this->Set('SlotLabelFactory', new SlotLabelFactory($user, $authorizationService));
         $this->Set('DisplaySlotFactory', new DisplaySlotFactory());
@@ -310,6 +316,11 @@ class SchedulePage extends ActionPage implements ISchedulePage
         $this->Set('ParticipantIdFilter', $this->GetParticipantId());
         $this->Set('ShowWeekNumbers', Configuration::Instance()->GetKey(ConfigKeys::SCHEDULE_SHOW_WEEK_NUMBERS, new BooleanConverter()));
         $this->Set('FastReservationLoad', Configuration::Instance()->GetKey(ConfigKeys::SCHEDULE_FAST_RESERVATION_LOAD, new BooleanConverter()) ?? false);
+        $this->Set('EmbeddedInDashboard', $embeddedInDashboard);
+
+        if ($embeddedInDashboard) {
+            $this->Set('HideNavBar', true);
+        }
 
         if ($this->IsMobile && !$this->IsTablet) {
             if ($this->ScheduleStyle == ScheduleStyle::Tall) {
@@ -459,8 +470,12 @@ class SchedulePage extends ActionPage implements ISchedulePage
 
     public function GetScheduleStyle(int $scheduleId): ?ScheduleStyle
     {
-        $cookie = $this->server->GetCookie("schedule-style-$scheduleId");
+        $cookie = $this->server->GetCookie($this->GetScheduleStyleCookieName($scheduleId));
         if ($cookie == null || $cookie === '') {
+            if ($this->IsHomeOverviewRequest() && $this->IsEmbeddedDashboardRequest()) {
+                return ScheduleStyle::CondensedWeek;
+            }
+
             return null;
         }
 
@@ -470,7 +485,7 @@ class SchedulePage extends ActionPage implements ISchedulePage
     public function SetScheduleStyle(ScheduleStyle $style): void
     {
         $this->ScheduleStyle = $style;
-        $this->Set('CookieName', 'schedule-style-' . $this->GetVar('ScheduleId'));
+        $this->Set('CookieName', $this->GetScheduleStyleCookieName($this->GetVar('ScheduleId')));
         $this->Set('ScheduleStyle', $style->value);
     }
 
@@ -686,5 +701,24 @@ class SchedulePage extends ActionPage implements ISchedulePage
     public function GetParticipantText()
     {
         return $this->GetQuerystring(FormKeys::PARTICIPANT_TEXT);
+    }
+
+    public function IsHomeOverviewRequest(): bool
+    {
+        return $this->GetQuerystring(Pages::HOME_OVERVIEW_QUERY_KEY) === Pages::HOME_OVERVIEW_QUERY_VALUE;
+    }
+
+    private function IsEmbeddedDashboardRequest(): bool
+    {
+        return $this->GetQuerystring('embed') === '1';
+    }
+
+    private function GetScheduleStyleCookieName(int $scheduleId): string
+    {
+        if ($this->IsHomeOverviewRequest() && $this->IsEmbeddedDashboardRequest()) {
+            return "dashboard-schedule-style-$scheduleId";
+        }
+
+        return "schedule-style-$scheduleId";
     }
 }
