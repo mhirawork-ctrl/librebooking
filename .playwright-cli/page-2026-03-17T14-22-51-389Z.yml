@@ -1,0 +1,46 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - link "G1棟会議室予約システム - ログイン" [ref=e4] [cursor=pointer]:
+      - /url: dashboard.php
+      - img "G1棟会議室予約システム - ログイン" [ref=e5]
+    - heading "G1棟会議室予約システム" [level=5] [ref=e7]:
+      - link "G1棟会議室予約システム" [ref=e8] [cursor=pointer]:
+        - /url: dashboard.php
+  - navigation [ref=e9]:
+    - generic [ref=e11]:
+      - list
+      - list [ref=e12]:
+        - listitem [ref=e13]:
+          - button "ヘルプ" [ref=e14] [cursor=pointer]
+        - listitem [ref=e15]:
+          - link "ログイン" [ref=e16] [cursor=pointer]:
+            - /url: index.php
+  - form [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e23]:
+        - img "G1棟会議室予約システム - ログイン" [ref=e25]
+        - generic [ref=e26]:
+          - generic [ref=e28]: 
+          - textbox "ユーザー名またはメールアドレス" [active] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e32]: 
+          - textbox "パスワード" [ref=e33]
+        - button "ログイン" [ref=e35] [cursor=pointer]
+        - generic [ref=e38]:
+          - checkbox "サインインを維持する" [ref=e39]
+          - generic [ref=e40]: サインインを維持する
+      - generic [ref=e41]:
+        - link " パスワードを忘れました" [ref=e43] [cursor=pointer]:
+          - /url: forgot.php
+          - generic [ref=e45]: 
+          - text: パスワードを忘れました
+        - generic [ref=e47] [cursor=pointer]:
+          - generic [ref=e49]: 
+          - text: 言語を変更
+  - generic: 
+  - contentinfo [ref=e50]:
+    - generic:
+      - link:
+        - /url: http://localhost:8080
+    - link "LibreBooking - GPLv3 - v4.2.0" [ref=e52] [cursor=pointer]:
+      - /url: https://github.com/LibreBooking/librebooking

@@ -1,0 +1,2 @@
+[   11580ms] TypeError: Cannot read properties of null (reading 'addEventListener')
+    at HTMLDocument.<anonymous> (http://localhost:8080/Web/scripts/phpscheduleit.js?v=4.2.0:166:12)
