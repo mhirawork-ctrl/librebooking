@@ -116,6 +116,17 @@
         {/foreach}
     {/if}
 
+    <style>
+        #navDashboard>.nav-link,
+        #navDashboard>.nav-link.active,
+        #navDashboard>.nav-link:hover,
+        #navDashboard>.nav-link:focus {
+            color: var(--bs-primary) !important;
+            font-weight: 700 !important;
+            opacity: 1 !important;
+        }
+    </style>
+
     <!-- End CSS -->
 </head>
 
@@ -150,7 +161,8 @@
                 <div class="collapse navbar-collapse" id="librebooking-navigation">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {if isset($LoggedIn) && $LoggedIn}
-                            <li class="nav-item" id="navDashboard"><a class="nav-link link-primary"
+                            <li class="nav-item" id="navDashboard"><a class="nav-link link-primary fw-bold"
+                                    style="color: var(--bs-primary) !important; font-weight: 700 !important; opacity: 1 !important;"
                                     href="{$Path}{Pages::DASHBOARD}">{translate key="Dashboard"}</a></li>
                             <li class="nav-item dropdown" id="navScheduleDropdown">
                                 <a href="#" class="nav-link link-primary dropdown-toggle" role="button"

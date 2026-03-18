@@ -49,7 +49,7 @@ class ReportCommandBuilder
         `owner`.`organization` as `organization`, `owner`.`position` as `position`, `owner`.`phone` as `phone`, `owner`.`timezone` as `timezone`, `owner`.`language` as `language`';
 
     public const PURPOSE_LIST_FRAGMENT = 'TRIM(CASE
-        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        WHEN LOCATE(\'｜\', REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\')) > 0 THEN SUBSTRING_INDEX(REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\'), \'｜\', 1)
         ELSE COALESCE(`rs`.`title`, \'\')
     END) as `reservation_purpose`';
 
@@ -99,12 +99,12 @@ class ReportCommandBuilder
     public const GROUP_BY_USER_FRAGMENT = 'GROUP BY `owner`.`user_id`';
 
     public const GROUP_BY_PURPOSE_FRAGMENT = 'GROUP BY TRIM(CASE
-        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        WHEN LOCATE(\'｜\', REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\')) > 0 THEN SUBSTRING_INDEX(REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\'), \'｜\', 1)
         ELSE COALESCE(`rs`.`title`, \'\')
     END)';
 
     public const GROUP_BY_USER_PURPOSE_FRAGMENT = 'GROUP BY `owner`.`user_id`, TRIM(CASE
-        WHEN LOCATE(\'｜\', COALESCE(`rs`.`title`, \'\')) > 0 THEN SUBSTRING_INDEX(COALESCE(`rs`.`title`, \'\'), \'｜\', 1)
+        WHEN LOCATE(\'｜\', REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\')) > 0 THEN SUBSTRING_INDEX(REPLACE(COALESCE(`rs`.`title`, \'\'), \'|\', \'｜\'), \'｜\', 1)
         ELSE COALESCE(`rs`.`title`, \'\')
     END)';
 

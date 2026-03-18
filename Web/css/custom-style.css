@@ -42,11 +42,11 @@ body {
   border-bottom: 1px solid rgba(13, 110, 253, 0.12);
 }
 
-#navDashboard,
 #navReportsDropdown {
   opacity: 0.72;
 }
 
+#navDashboard .nav-link,
 #navScheduleDropdown .nav-link,
 #navApplicationManagementDropdown .nav-link {
   font-weight: 700;

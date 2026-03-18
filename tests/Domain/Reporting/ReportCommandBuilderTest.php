@@ -229,6 +229,30 @@ class ReportCommandBuilderTest extends TestBase
         $this->assertStringContainsString(ReportCommandBuilder::GROUP_BY_USER_FRAGMENT, $actual->GetQuery());
     }
 
+    public function testGroupsByPurposeSupportsHalfAndFullWidthDelimiters()
+    {
+        $builder = new ReportCommandBuilder();
+        $actual = $builder->SelectCount()
+                          ->GroupByPurpose()
+                          ->Build();
+
+        $this->assertStringContainsString(ReportCommandBuilder::PURPOSE_LIST_FRAGMENT, $actual->GetQuery());
+        $this->assertStringContainsString(ReportCommandBuilder::GROUP_BY_PURPOSE_FRAGMENT, $actual->GetQuery());
+        $this->assertStringContainsString("REPLACE(COALESCE(`rs`.`title`, ''), '|', '｜')", $actual->GetQuery());
+    }
+
+    public function testGroupsByUserAndPurposeSupportsHalfAndFullWidthDelimiters()
+    {
+        $builder = new ReportCommandBuilder();
+        $actual = $builder->SelectCount()
+                          ->GroupByUserAndPurpose()
+                          ->Build();
+
+        $this->assertStringContainsString(ReportCommandBuilder::PURPOSE_LIST_FRAGMENT, $actual->GetQuery());
+        $this->assertStringContainsString(ReportCommandBuilder::GROUP_BY_USER_PURPOSE_FRAGMENT, $actual->GetQuery());
+        $this->assertStringContainsString("REPLACE(COALESCE(`rs`.`title`, ''), '|', '｜')", $actual->GetQuery());
+    }
+
     public function testIfGroupByThenNoResourcesAreListed()
     {
         $builder = new ReportCommandBuilder();

@@ -134,18 +134,43 @@ INSERT INTO groups (name)
 SELECT '研究室E'
 WHERE NOT EXISTS (SELECT 1 FROM groups WHERE name = '研究室E');
 
-INSERT INTO resources (
-  name,
-  location,
-  description,
-  max_participants,
-  autoassign,
-  requires_approval,
-  allow_multiday_reservations,
-  schedule_id
-)
-SELECT '会議室1', '共用フロア', '研究室共用の会議室', 6, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室1');
+UPDATE resources
+SET name = 'G1-420 セミナー室（３単位）'
+WHERE name = '会議室1'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-420 セミナー室（３単位）');
+
+UPDATE resources
+SET name = 'G1-419 セミナー室（２単位）'
+WHERE name = '会議室2'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-419 セミナー室（２単位）');
+
+UPDATE resources
+SET name = 'G1-617 招へい研究者室（１単位）'
+WHERE name = '会議室3'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-617 招へい研究者室（１単位）');
+
+UPDATE resources
+SET name = 'G1-813 セミナー室（２単位）'
+WHERE name = '会議室4'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-813 セミナー室（２単位）');
+
+UPDATE resources
+SET name = 'G1-820 セミナー室（３単位）'
+WHERE name = '会議室5'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-820 セミナー室（３単位）');
+
+UPDATE resources
+SET name = 'G1-821 非常勤講師室（１単位）'
+WHERE name = '会議室6'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-821 非常勤講師室（１単位）');
+
+UPDATE resources
+SET name = 'G1-1013 セミナー室（２単位）'
+WHERE name = '会議室7'
+  AND NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-1013 セミナー室（２単位）');
+
+DELETE FROM resources
+WHERE name IN ('会議室8', '会議室9', '会議室10');
 
 INSERT INTO resources (
   name,
@@ -157,8 +182,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室2', '共用フロア', '研究室共用の会議室', 6, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室2');
+SELECT 'G1-420 セミナー室（３単位）', '共用フロア', '研究室共用の会議室', 6, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-420 セミナー室（３単位）');
 
 INSERT INTO resources (
   name,
@@ -170,8 +195,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室3', '共用フロア', '研究室共用の会議室', 8, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室3');
+SELECT 'G1-419 セミナー室（２単位）', '共用フロア', '研究室共用の会議室', 6, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-419 セミナー室（２単位）');
 
 INSERT INTO resources (
   name,
@@ -183,8 +208,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室4', '共用フロア', '研究室共用の会議室', 8, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室4');
+SELECT 'G1-617 招へい研究者室（１単位）', '共用フロア', '研究室共用の会議室', 8, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-617 招へい研究者室（１単位）');
 
 INSERT INTO resources (
   name,
@@ -196,8 +221,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室5', '共用フロア', '研究室共用の会議室', 10, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室5');
+SELECT 'G1-813 セミナー室（２単位）', '共用フロア', '研究室共用の会議室', 8, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-813 セミナー室（２単位）');
 
 INSERT INTO resources (
   name,
@@ -209,8 +234,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室6', '共用フロア', '研究室共用の会議室', 10, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室6');
+SELECT 'G1-820 セミナー室（３単位）', '共用フロア', '研究室共用の会議室', 10, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-820 セミナー室（３単位）');
 
 INSERT INTO resources (
   name,
@@ -222,8 +247,8 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室7', '共用フロア', '研究室共用の会議室', 12, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室7');
+SELECT 'G1-821 非常勤講師室（１単位）', '共用フロア', '研究室共用の会議室', 10, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-821 非常勤講師室（１単位）');
 
 INSERT INTO resources (
   name,
@@ -235,31 +260,26 @@ INSERT INTO resources (
   allow_multiday_reservations,
   schedule_id
 )
-SELECT '会議室8', '共用フロア', '研究室共用の会議室', 12, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室8');
+SELECT 'G1-1013 セミナー室（２単位）', '共用フロア', '研究室共用の会議室', 12, 1, 0, 1, @default_schedule_id
+WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = 'G1-1013 セミナー室（２単位）');
 
-INSERT INTO resources (
-  name,
-  location,
-  description,
-  max_participants,
-  autoassign,
-  requires_approval,
-  allow_multiday_reservations,
-  schedule_id
-)
-SELECT '会議室9', '共用フロア', '研究室共用の会議室', 16, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室9');
-
-INSERT INTO resources (
-  name,
-  location,
-  description,
-  max_participants,
-  autoassign,
-  requires_approval,
-  allow_multiday_reservations,
-  schedule_id
-)
-SELECT '会議室10', '共用フロア', '研究室共用の会議室', 20, 1, 0, 1, @default_schedule_id
-WHERE NOT EXISTS (SELECT 1 FROM resources WHERE name = '会議室10');
+UPDATE resources
+SET sort_order = CASE name
+  WHEN 'G1-1013 セミナー室（２単位）' THEN 1
+  WHEN 'G1-821 非常勤講師室（１単位）' THEN 2
+  WHEN 'G1-820 セミナー室（３単位）' THEN 3
+  WHEN 'G1-813 セミナー室（２単位）' THEN 4
+  WHEN 'G1-617 招へい研究者室（１単位）' THEN 5
+  WHEN 'G1-419 セミナー室（２単位）' THEN 6
+  WHEN 'G1-420 セミナー室（３単位）' THEN 7
+  ELSE sort_order
+END
+WHERE name IN (
+  'G1-1013 セミナー室（２単位）',
+  'G1-821 非常勤講師室（１単位）',
+  'G1-820 セミナー室（３単位）',
+  'G1-813 セミナー室（２単位）',
+  'G1-617 招へい研究者室（１単位）',
+  'G1-419 セミナー室（２単位）',
+  'G1-420 セミナー室（３単位）'
+);

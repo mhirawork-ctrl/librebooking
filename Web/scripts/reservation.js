@@ -105,7 +105,7 @@ function Reservation(opts) {
       return parsed;
     }
 
-    const parts = _.map(title.split('｜'), function (part) {
+    const parts = _.map(title.split(/[｜|]/), function (part) {
       return $.trim(part);
     });
 
