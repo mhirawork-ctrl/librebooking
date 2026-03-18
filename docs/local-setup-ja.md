@@ -8,7 +8,7 @@
 ## 2. コンテナを起動する
 
 ```bash
-cd /Users/masahira/Agent_macmini/reservation_system
+cd /path/to/reservation_system
 ./scripts/up.sh
 ```
 
@@ -17,7 +17,7 @@ cd /Users/masahira/Agent_macmini/reservation_system
 ## 3. DB と管理者を自動初期化する
 
 ```bash
-cd /Users/masahira/Agent_macmini/reservation_system
+cd /path/to/reservation_system
 ./scripts/init_local_instance.sh
 ```
 
@@ -31,7 +31,7 @@ cd /Users/masahira/Agent_macmini/reservation_system
 初期ログイン情報は `.env` の以下です。
 
 - ユーザー名: `admin`
-- パスワード: `local-admin-password`
+- パスワード: `.env` の `LB_ADMIN_PASSWORD`
 
 ## 4. 手動でインストール画面を使いたい場合
 
@@ -45,7 +45,7 @@ cd /Users/masahira/Agent_macmini/reservation_system
 ## 5. 会議室・研究室の初期データだけ入れ直す
 
 ```bash
-cd /Users/masahira/Agent_macmini/reservation_system
+cd /path/to/reservation_system
 ./scripts/bootstrap_meeting_room_data.sh
 ```
 
