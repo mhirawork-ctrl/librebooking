@@ -1,19 +1,28 @@
-# Windows本番運用手順（Dockerインストールから公開まで）
+# Windows本番運用手順（既存データ維持モード）
 
-この手順は、Windows サーバに LibreBooking を本番導入するための実施手順です。  
-本番では「学内CIDR制限を先に適用してから起動する」ことを前提にしています。
+この手順は、LibreBooking を Windows に本番導入するときに、既存の「部屋名称・ユーザー一覧・予約履歴」をそのまま維持するための手順です。  
+ポイントは **新規初期化をしない** ことです。
 
-## 1. 実施順序（本番）
+## 0. 最重要ルール（データ維持）
 
-1. Docker Desktop 導入
-2. リポジトリ配置（USB持ち込み）
-3. `.env` 本番設定
-4. 学内CIDR制限（Windows Firewall）
-5. コンテナ起動
-6. Webインストーラ初期化
-7. Task Scheduler ジョブ登録
-8. 受け入れ確認
-9. 利用者へURL案内
+本番で既存データを維持するため、次の3点を必ず守ってください。
+
+1. 本番で `/install` の DB 作成を実行しない
+2. `create-schema.sql` / 初期化スクリプトを本番で実行しない
+3. 旧環境の最新DBダンプを本番へ `restore-db.cmd` で復元する
+
+## 1. 実施順序（本番・データ維持）
+
+1. 旧環境で DB フルバックアップ取得
+2. SQL バックアップを新サーバへ搬送
+3. 新サーバに Docker Desktop 導入
+4. リポジトリ配置と `.env` 本番設定
+5. 学内CIDR制限（Windows Firewall）適用
+6. コンテナ起動
+7. DB リストア（丸ごと移行）
+8. Task Scheduler ジョブ登録
+9. 受け入れ確認
+10. 利用者へURL案内
 
 ## 2. 事前準備
 
@@ -76,27 +85,23 @@ Copy-Item .\ops\windows\.env.production.template .\.env
 最低限、次を本番値に変更してください。
 
 - `MARIADB_ROOT_PASSWORD`
+- `LB_DATABASE_NAME`
+- `LB_DATABASE_USER`
 - `LB_DATABASE_PASSWORD`
-- `LB_INSTALL_PASSWORD`
-- `LB_ADMIN_PASSWORD`
-- `LB_ADMIN_EMAIL`
 - `LB_SCRIPT_URL`
 
 設定例（値は必ず変更）:
 
 ```dotenv
 MARIADB_ROOT_PASSWORD=ChangeThisRootPass_2026
+LB_DATABASE_NAME=librebooking
+LB_DATABASE_USER=lb_user
 LB_DATABASE_PASSWORD=ChangeThisDbPass_2026
-LB_INSTALL_PASSWORD=ChangeThisInstallPass_2026
-LB_ADMIN_PASSWORD=ChangeThisAdminPass_2026
-LB_ADMIN_EMAIL=reserve-admin@example.ac.jp
 LB_SCRIPT_URL=http://131.112.159.12:8080
 ```
 
-`LB_SCRIPT_URL` の使い分け:
-
-- IP運用時: `http://131.112.159.12:8080`
-- DNS+HTTPS運用時: `https://reserve.example.ac.jp`
+`LB_INSTALL_PASSWORD` / `LB_ADMIN_PASSWORD` / `LB_ADMIN_EMAIL` は新規構築時に使う値です。  
+**既存DB移行のみの場合は実運用で未使用でも問題ありません。**
 
 ## 4. 学内CIDR制限（起動前に実施）
 
@@ -120,57 +125,78 @@ powershell -ExecutionPolicy Bypass -File .\ops\windows\apply-firewall-rules.ps1 
 Get-NetFirewallRule -Group LibreBooking | Format-Table DisplayName, Enabled, Direction, Action
 ```
 
-注意:
+## 5. コンテナ起動
 
-- 80/443/8080 を広く許可する既存ルールは無効化してください
-- 既定受信ポリシーが `Block` 前提です
+- 起動: `ops\windows\start-librebooking.cmd`
+- 状態確認: `ops\windows\status-librebooking.cmd`
 
-## 5. 初回起動と初期セットアップ
+この時点ではDB未移行ならログインできなくても問題ありません。次の手順で既存DBを復元します。
 
-### 5.1 起動
+## 6. DB丸ごと移行（部屋名・ユーザー一覧を維持）
 
-`ops\windows\start-librebooking.cmd` をダブルクリック。
+### 6.1 旧環境でDBバックアップ取得
 
-### 5.2 状態確認
+旧環境が同じリポジトリ構成なら、管理者コマンドプロンプトで以下を実行:
 
-`ops\windows\status-librebooking.cmd` をダブルクリックし、URL表示を確認。
+```cmd
+ops\windows\backup-db.cmd
+```
 
-### 5.3 Webインストーラ
+生成先:
 
-1. `http://localhost:8080/install` にアクセス
-2. `LB_INSTALL_PASSWORD` を入力
-3. DB root ユーザー: `root`
-4. DB root パスワード: `MARIADB_ROOT_PASSWORD`
-5. `Create the database` と `Create the database user` を選択
-6. 初期化完了後、管理者ユーザーを1名登録
+- `output\backups\db-YYYYMMDD-HHMMSS.sql`
 
-補足: `.env` の `LB_ADMIN_EMAIL` と同じメールで登録したユーザーが管理者になります。
+任意ファイル名で出力する場合:
 
-## 6. 担当者向け運用（ワンクリック）
+```cmd
+ops\windows\backup-db.cmd D:\backup\librebooking-full.sql
+```
 
-担当者が使うファイルは次の3つのみです。
+### 6.2 SQLファイルを新サーバへ搬送
 
-- 起動: `start-librebooking.cmd`
-- 停止: `stop-librebooking.cmd`
-- 状態確認: `status-librebooking.cmd`
+- USBメモリなどで `*.sql` を新サーバへコピー
+- 例: `C:\work\reservation_system\output\backups\librebooking-full.sql`
 
-### 6.1 デスクトップショートカット作成
+### 6.3 新サーバでDBリストア
 
-1. 各 `.cmd` を右クリック
-2. `送る` -> `デスクトップ (ショートカットを作成)`
-3. 名前を以下へ変更
+管理者コマンドプロンプトで実行:
 
-- `予約システム起動`
-- `予約システム停止`
-- `予約システム状態確認`
+```cmd
+cd C:\work\reservation_system
+ops\windows\restore-db.cmd .\output\backups\librebooking-full.sql
+```
+
+`restore-db.cmd` は以下を自動実行します。
+
+- `db` コンテナ起動
+- `app` コンテナ停止
+- 既存DBを再作成
+- SQLインポート
+- `app` コンテナ再起動
+
+### 6.4 リストア確認（件数確認）
+
+PowerShellで件数確認:
+
+```powershell
+docker compose exec -T db sh -lc 'mariadb -u"$MARIADB_USER" -p"$MARIADB_PASSWORD" "$MARIADB_DATABASE" -e "SELECT COUNT(*) AS users_count FROM users; SELECT COUNT(*) AS resources_count FROM resources;"'
+```
+
+`users_count` と `resources_count` が期待値に近ければOKです。
+
+### 6.5 絶対に実行しない操作（データ維持時）
+
+- `http://<host>/install` で `Create the database` を実行する
+- `database_schema/create-schema.sql` を本番DBへ流す
+- `scripts/init_local_instance.sh` を本番で実行する
+- `docker/sql/meeting-room-bootstrap.sql` を本番で実行する
 
 ## 7. ジョブ運用（Task Scheduler）
 
 ### 7.1 目的
 
-- LibreBooking の裏処理（定期バッチ）を自動実行し続けるためです
-- 画面アクセスだけでは実行されない処理をTask Schedulerで補います
-- 止まると「通知未送信」「自動解放未実行」「セッション/旧データ未清掃」などが起きます
+- LibreBooking の裏処理（定期バッチ）を自動実行し続けるため
+- 止まると通知未送信、自動解放未実行、旧データ未清掃などが発生
 
 ### 7.2 登録
 
@@ -198,113 +224,65 @@ schtasks /Query /TN LibreBooking-autorelease /V /FO LIST
 schtasks /Query /TN LibreBooking-sendreminders /V /FO LIST
 ```
 
-### 7.4 手動実行
+## 8. 立ち上げ・公開完了の判定
+
+次を満たせば公開完了です。
+
+1. 学内CIDR制限が有効
+2. `status-librebooking.cmd` で `app/db` が稼働中
+3. URLへアクセスしてログイン可能
+4. 既存の部屋名称・ユーザー一覧が表示される
+5. Task Scheduler の実行結果が成功
+
+## 9. 日常運用（担当者向け）
+
+担当者が使うファイルは次の3つのみです。
+
+- 起動: `start-librebooking.cmd`
+- 停止: `stop-librebooking.cmd`
+- 状態確認: `status-librebooking.cmd`
+
+## 10. 定期バックアップ
+
+DBバックアップ（推奨: 毎日）:
 
 ```cmd
-ops\windows\run-job.cmd sendreminders.php
+cd C:\work\reservation_system
+ops\windows\backup-db.cmd
 ```
 
-### 7.5 削除
+設定/アップロードを含める場合:
 
 ```powershell
 cd C:\work\reservation_system
-powershell -ExecutionPolicy Bypass -File .\ops\windows\unregister-scheduled-tasks.ps1
-```
-
-### 7.6 公開完了判定
-
-本書の `## 1` から `## 7` まで完了し、次の3点を満たせば「立ち上げ・公開完了」と判断して利用者へ案内して構いません。
-
-1. `## 4` の学内CIDR制限が有効（学内からのみ到達可能）
-2. `## 5` のWeb画面表示とログインが成功
-3. `## 7` のジョブ登録後、Task Scheduler の実行結果が成功
-
-## 8. バックアップ
-
-### 8.1 DBバックアップ
-
-```powershell
-cd C:\work\reservation_system
-New-Item -ItemType Directory -Force -Path .\output\backups | Out-Null
 $ts = Get-Date -Format "yyyyMMdd-HHmmss"
-docker compose exec -T db sh -lc 'mariadb-dump -uroot -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"' > ".\output\backups\db-$ts.sql"
-```
-
-### 8.2 設定・アップロードバックアップ
-
-```powershell
 docker compose cp app:/config ".\output\backups\config-$ts"
 docker compose cp app:/var/www/html/Web/uploads ".\output\backups\uploads-$ts"
 ```
 
-### 8.3 推奨保持方針
-
-- DB: 日次 30世代
-- config/uploads: 日次 14世代
-
-## 9. 復旧リハーサル
-
-1. `start-librebooking.cmd` で起動
-2. DBを初期化または空状態にする
-3. SQLバックアップをインポート
-4. `config` と `uploads` を必要に応じて復元
-5. ログイン・予約一覧・予約作成を確認
-
-インポート例:
-
-```powershell
-Get-Content .\output\backups\db-YYYYMMDD-HHMMSS.sql | docker compose exec -T db sh -lc 'mariadb -uroot -p"$MARIADB_ROOT_PASSWORD" "$MARIADB_DATABASE"'
-```
-
-## 10. 更新手順
-
-```powershell
-cd C:\work\reservation_system
-# 事前にバックアップ取得
-git pull
-docker compose build --no-cache
-docker compose up -d
-```
-
-更新後確認:
-
-- `status-librebooking.cmd` が正常表示
-- ログイン可能
-- 予約作成可能
-- ジョブ直近実行が成功
-
 ## 11. 障害時の一次対応
 
 1. `status-librebooking.cmd` で状態確認
-2. ログ確認:
+2. ログ確認
 
 ```powershell
 cd C:\work\reservation_system
 docker compose logs --since 30m app db
 ```
 
-3. 再起動:
+3. 再起動
 
 ```powershell
 docker compose restart
 ```
 
-4. ジョブ遅延時は手動実行:
+4. 必要時は直近バックアップからリストア
 
 ```cmd
-ops\windows\run-job.cmd sendreminders.php
+ops\windows\restore-db.cmd .\output\backups\db-YYYYMMDD-HHMMSS.sql
 ```
 
-## 12. 実機導入前の受け入れチェック
-
-- `start-librebooking.cmd` でWeb表示できる
-- `stop-librebooking.cmd` で停止できる
-- `status-librebooking.cmd` で状態とURLが表示される
-- Task Scheduler 7ジョブが登録される
-- ジョブ手動実行が成功する
-- バックアップ取得とリストア試験が成功する
-
-## 13. 本番切替時に残る作業
+## 12. 本番切替時に残る作業
 
 - `131.112.159.12` への最終割当
 - 学内DNS登録
