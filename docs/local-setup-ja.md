@@ -70,3 +70,4 @@ cd /Users/masahira/Agent_macmini/reservation_system
 - アプリの主要設定は `.env` で管理しています
 - 画面の軽い見た目調整は `Web/css/custom-style.css` にあります
 - ナビゲーションの軽い導線調整は `tpl/globalheader.tpl` に入れています
+- Windows 本番運用手順は `docs/operations-windows-ja.md` を参照してください
